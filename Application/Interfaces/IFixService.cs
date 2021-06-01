@@ -8,8 +8,10 @@ namespace Application.Interfaces
     {
         void AddEditElements(int? fixId, IList<ElementDto> elementsDto);
 
-        Fix Create(FixDto fixDto);
+        FixDto Create(FixDto fixDto);
 
         string GenerateFixReport(int? fixId);
+
+        IEnumerable<FixDto> Get(int? shipmentId, int? customerId, string fixDate, bool inculdeElements, int? pageNo, int? pageSize);
     }
 }

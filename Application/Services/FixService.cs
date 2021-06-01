@@ -16,6 +16,7 @@ namespace Application.Services
         private readonly IRepository<Location> _locationRepository;
         private readonly IRepository<Shipment> _shipmentRepository;
         private readonly IRepository<Element> _elementRepository;
+        private readonly IRepository<CommonCode> _commonCodeRepository;
         private readonly ICommonCodeService _commonCodeService;
 
         public FixService(IRepository<Fix> fixRepository,
@@ -23,6 +24,7 @@ namespace Application.Services
             ICommonCodeService commonCodeService,
             IRepository<Location> locationRepository,
             IRepository<Shipment> shipmentRepository,
+            IRepository<CommonCode> commonCodeRepository,
             IRepository<Element> elementRepository)
         {
             _fixRepository = fixRepository;
@@ -31,26 +33,49 @@ namespace Application.Services
             _locationRepository = locationRepository;
             _shipmentRepository = shipmentRepository;
             _elementRepository = elementRepository;
+            _commonCodeRepository = commonCodeRepository;
         }
 
-        public Fix Create(FixDto fixDto)
+        public IEnumerable<FixDto> Get(int? shipmentId, int? customerId, string fixDate, bool inculdeElements, int? pageNo, int? pageSize)
+        {
+            int? itemsToSkip = (pageNo - 1) * pageSize;
+
+            var query = this._fixRepository.Table.Where(item => !item.IsDeleted);
+
+            if (shipmentId.HasValue)
+            {
+                query = query.Where(item => item.ShipmentId == shipmentId);
+            }
+
+            if (customerId.HasValue)
+            {
+                query = query.Where(item => item.CustomerId == customerId);
+            }
+
+            var paged = query.OrderBy(item => item.FixDate).Skip(itemsToSkip.Value).Take(pageSize.Value);
+
+            var listOfFixes = paged.ToList().Select(item => item.ConvertToDto(inculdeElements));
+            return listOfFixes;
+        }
+
+        public FixDto Create(FixDto fixDto)
         {
             Fix newFix = new Fix();
             ValidateFix(newFix, fixDto);
 
             _fixRepository.Create(newFix);
             _fixRepository.Flush();
-            return null;
+            return newFix.ConvertToDto();
         }
 
         private void ValidateFix(Fix newFix, FixDto fixDto)
         {
             if (
                    fixDto == null ||
-                   fixDto.NetWeight.HasValue ||
-                   fixDto.IncurredCosts.HasValue ||
-                   fixDto.CurrencyRates.HasValue ||
-                   fixDto.FixDate.HasValue
+                   !fixDto.NetWeight.HasValue ||
+                   !fixDto.IncurredCosts.HasValue ||
+                   !fixDto.CurrencyRates.HasValue ||
+                   !fixDto.FixDate.HasValue
            )
             {
                 throw new ValidationException("Brak wymaganych informacji!");
@@ -63,7 +88,7 @@ namespace Application.Services
             if (shipment == null) throw new RecordNotFoundException("Nie znaleziono Shipmentu!");
             newFix.ShipmentId = fixDto.ShipmentId;
 
-            var customer = _customerRepository.Get(fixDto.CurrencyId);
+            var customer = _customerRepository.Get(fixDto.CustomerId);
             if (customer == null) throw new RecordNotFoundException("Nie znaleziono klienta!");
             newFix.CustomerId = fixDto.CustomerId;
 
@@ -94,14 +119,20 @@ namespace Application.Services
             if (fix == null) throw new RecordNotFoundException("Nie znaleziono Fixu!");
 
             var isElementValid = elementsDto.Any(item => !item.Price.HasValue || !item.NameCodeId.HasValue);
-            if (!isElementValid) throw new ValidationException("Brak wymaganych informacji!");
+            if (isElementValid) throw new ValidationException("Brak wymaganych informacji!");
 
             foreach (ElementDto elementDto in elementsDto)
             {
+                var commonCodeName = _commonCodeRepository.Get(elementDto.NameCodeId);
+                if (commonCodeName == null)
+                    throw new ValidationException($"Metal <strong>{elementDto.NameCodeId}</strong> nie istnieje");
+
                 if (elementDto.Id == 0)
                 {
                     var newElement = new Element();
-                    newElement.CopyFromDto(elementDto);
+                    newElement.CommonCodeNameId = commonCodeName.Id;
+                    newElement.Price = elementDto.Price;
+                    newElement.FixId = fix.Id;
                     _elementRepository.Create(newElement);
                 }
                 else

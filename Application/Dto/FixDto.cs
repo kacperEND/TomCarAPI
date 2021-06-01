@@ -69,6 +69,7 @@ namespace Application.Dto
             fixDto.WeightUomCode = fix.CommonCodeCurrency?.Code;
             fixDto.LocationId = fix.Customer?.Location?.Id;
             fixDto.LocationName = fix.Customer?.Location?.Name;
+            fixDto.Elements = elemetsDto;
 
             return fixDto;
         }
