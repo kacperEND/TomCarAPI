@@ -5,11 +5,13 @@ using System.Linq;
 
 namespace WebAPI.Controllers
 {
-    public class ShipmnentController : ControllerBase
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ShipmentsController : ControllerBase
     {
         private readonly IShipmentService _shipmentService;
 
-        public ShipmnentController(IShipmentService shipmentService)
+        public ShipmentsController(IShipmentService shipmentService)
         {
             _shipmentService = shipmentService;
         }

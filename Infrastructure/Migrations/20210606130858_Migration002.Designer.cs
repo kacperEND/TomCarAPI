@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SqlServerDBContext))]
-    [Migration("20210531124057_Migration001")]
-    partial class Migration001
+    [Migration("20210606130858_Migration002")]
+    partial class Migration002
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,9 +35,6 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("CreatedOnUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
@@ -55,9 +52,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("ModifiedOnUtc")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -92,9 +86,6 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("CreatedOnUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
@@ -115,9 +106,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("ModifiedOnUtc")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -146,17 +134,11 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CommonCodeCurrencyId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("CommonCodeNameId")
                         .HasColumnType("int");
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedOnUtc")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
@@ -174,15 +156,13 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("ModifiedOnUtc")
-                        .HasColumnType("datetime2");
+                    b.Property<double?>("NetWeight")
+                        .HasColumnType("float");
 
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CommonCodeCurrencyId");
 
                     b.HasIndex("CommonCodeNameId");
 
@@ -198,6 +178,44 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("FixOrderId")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ShipmentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FixOrderId");
+
+                    b.HasIndex("ShipmentId");
+
+                    b.ToTable("Fixs");
+                });
+
+            modelBuilder.Entity("Domain.Models.FixOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
                     b.Property<int?>("CommonCodeCurrencyId")
                         .HasColumnType("int");
 
@@ -207,14 +225,10 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("CreatedOnUtc")
-                        .HasColumnType("datetime2");
+                    b.Property<decimal?>("CurrencyRates")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CustsomerId")
-                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DateCreated")
@@ -223,26 +237,23 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("DateModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("FixDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<decimal?>("IncurredCosts")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("Locationid")
-                        .HasColumnType("int");
-
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("ModifiedOnUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<double?>("NetWeight")
                         .HasColumnType("float");
+
+                    b.Property<string>("Number")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("OrderDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("ShipmentId")
                         .IsRequired()
@@ -256,11 +267,13 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("Locationid");
+                    b.HasIndex("Number")
+                        .IsUnique()
+                        .HasFilter("[Number] IS NOT NULL");
 
                     b.HasIndex("ShipmentId");
 
-                    b.ToTable("Fixs");
+                    b.ToTable("FixOrders");
                 });
 
             modelBuilder.Entity("Domain.Models.Location", b =>
@@ -288,9 +301,6 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("CreatedOnUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
@@ -305,9 +315,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("ModifiedOnUtc")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");
@@ -344,20 +351,20 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("CreatedOnUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateEnd")
+                    b.Property<DateTime?>("DateEnd")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateStart")
+                    b.Property<DateTime?>("DateStart")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -365,8 +372,8 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("ModifiedOnUtc")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -385,9 +392,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("CreatedOnUtc")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
@@ -412,9 +416,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("ModifiedOnUtc")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
@@ -448,10 +449,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Element", b =>
                 {
-                    b.HasOne("Domain.Models.CommonCode", "CommonCodeCurrency")
-                        .WithMany()
-                        .HasForeignKey("CommonCodeCurrencyId");
-
                     b.HasOne("Domain.Models.CommonCode", "CommonCodeName")
                         .WithMany()
                         .HasForeignKey("CommonCodeNameId");
@@ -462,14 +459,27 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CommonCodeCurrency");
-
                     b.Navigation("CommonCodeName");
 
                     b.Navigation("Fix");
                 });
 
             modelBuilder.Entity("Domain.Models.Fix", b =>
+                {
+                    b.HasOne("Domain.Models.FixOrder", "FixOrder")
+                        .WithMany("Fixs")
+                        .HasForeignKey("FixOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Shipment", null)
+                        .WithMany("Fixs")
+                        .HasForeignKey("ShipmentId");
+
+                    b.Navigation("FixOrder");
+                });
+
+            modelBuilder.Entity("Domain.Models.FixOrder", b =>
                 {
                     b.HasOne("Domain.Models.CommonCode", "CommonCodeCurrency")
                         .WithMany()
@@ -483,12 +493,8 @@ namespace Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("CustomerId");
 
-                    b.HasOne("Domain.Models.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("Locationid");
-
                     b.HasOne("Domain.Models.Shipment", "Shipment")
-                        .WithMany("Fixs")
+                        .WithMany()
                         .HasForeignKey("ShipmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -499,14 +505,17 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Customer");
 
-                    b.Navigation("Location");
-
                     b.Navigation("Shipment");
                 });
 
             modelBuilder.Entity("Domain.Models.Fix", b =>
                 {
                     b.Navigation("Elements");
+                });
+
+            modelBuilder.Entity("Domain.Models.FixOrder", b =>
+                {
+                    b.Navigation("Fixs");
                 });
 
             modelBuilder.Entity("Domain.Models.Shipment", b =>

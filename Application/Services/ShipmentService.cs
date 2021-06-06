@@ -69,7 +69,7 @@ namespace Application.Services
                 query = query.Where(item => item.DateEnd >= endDateUtc);
             }
 
-            var pagedShipment = query.OrderBy(item => item.Name).Skip(itemsToSkip.Value).Take(pageSize.Value);
+            var pagedShipment = query.OrderBy(item => item.DateEnd).Skip(itemsToSkip.Value).Take(pageSize.Value);
 
             var listOfCustomers = pagedShipment.ToList().Select(item => item.ConvertToDto());
             return listOfCustomers;

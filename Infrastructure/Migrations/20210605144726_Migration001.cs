@@ -23,9 +23,7 @@ namespace Infrastructure.Migrations
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -58,9 +56,7 @@ namespace Infrastructure.Migrations
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -74,15 +70,15 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Code = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    DateStart = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateEnd = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateStart = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DateEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -104,9 +100,7 @@ namespace Infrastructure.Migrations
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -131,9 +125,7 @@ namespace Infrastructure.Migrations
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -147,61 +139,84 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Fixs",
+                name: "FixOrders",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Number = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     NetWeight = table.Column<double>(type: "float", nullable: true),
                     IncurredCosts = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    CurrencyRates = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     ShipmentId = table.Column<int>(type: "int", nullable: false),
-                    CustsomerId = table.Column<int>(type: "int", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: true),
-                    FixDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CommonCodeCurrencyId = table.Column<int>(type: "int", nullable: true),
                     CommonCodeWeightUomId = table.Column<int>(type: "int", nullable: true),
-                    Locationid = table.Column<int>(type: "int", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Fixs", x => x.Id);
+                    table.PrimaryKey("PK_FixOrders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Fixs_CommonCodes_CommonCodeCurrencyId",
+                        name: "FK_FixOrders_CommonCodes_CommonCodeCurrencyId",
                         column: x => x.CommonCodeCurrencyId,
                         principalTable: "CommonCodes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Fixs_CommonCodes_CommonCodeWeightUomId",
+                        name: "FK_FixOrders_CommonCodes_CommonCodeWeightUomId",
                         column: x => x.CommonCodeWeightUomId,
                         principalTable: "CommonCodes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Fixs_Customers_CustomerId",
+                        name: "FK_FixOrders_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Fixs_Locations_Locationid",
-                        column: x => x.Locationid,
-                        principalTable: "Locations",
+                        name: "FK_FixOrders_Shipments_ShipmentId",
+                        column: x => x.ShipmentId,
+                        principalTable: "Shipments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Fixs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FixOrderId = table.Column<int>(type: "int", nullable: false),
+                    ShipmentId = table.Column<int>(type: "int", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Fixs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Fixs_FixOrders_FixOrderId",
+                        column: x => x.FixOrderId,
+                        principalTable: "FixOrders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Fixs_Shipments_ShipmentId",
                         column: x => x.ShipmentId,
                         principalTable: "Shipments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -213,24 +228,15 @@ namespace Infrastructure.Migrations
                     FixId = table.Column<int>(type: "int", nullable: false),
                     CommonCodeNameId = table.Column<int>(type: "int", nullable: true),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    CommonCodeCurrencyId = table.Column<int>(type: "int", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
-                    ModifiedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Elements", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Elements_CommonCodes_CommonCodeCurrencyId",
-                        column: x => x.CommonCodeCurrencyId,
-                        principalTable: "CommonCodes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Elements_CommonCodes_CommonCodeNameId",
                         column: x => x.CommonCodeNameId,
@@ -262,11 +268,6 @@ namespace Infrastructure.Migrations
                 column: "LocationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Elements_CommonCodeCurrencyId",
-                table: "Elements",
-                column: "CommonCodeCurrencyId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Elements_CommonCodeNameId",
                 table: "Elements",
                 column: "CommonCodeNameId");
@@ -277,24 +278,36 @@ namespace Infrastructure.Migrations
                 column: "FixId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Fixs_CommonCodeCurrencyId",
-                table: "Fixs",
+                name: "IX_FixOrders_CommonCodeCurrencyId",
+                table: "FixOrders",
                 column: "CommonCodeCurrencyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Fixs_CommonCodeWeightUomId",
-                table: "Fixs",
+                name: "IX_FixOrders_CommonCodeWeightUomId",
+                table: "FixOrders",
                 column: "CommonCodeWeightUomId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Fixs_CustomerId",
-                table: "Fixs",
+                name: "IX_FixOrders_CustomerId",
+                table: "FixOrders",
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Fixs_Locationid",
+                name: "IX_FixOrders_Number",
+                table: "FixOrders",
+                column: "Number",
+                unique: true,
+                filter: "[Number] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FixOrders_ShipmentId",
+                table: "FixOrders",
+                column: "ShipmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Fixs_FixOrderId",
                 table: "Fixs",
-                column: "Locationid");
+                column: "FixOrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Fixs_ShipmentId",
@@ -332,6 +345,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Fixs");
+
+            migrationBuilder.DropTable(
+                name: "FixOrders");
 
             migrationBuilder.DropTable(
                 name: "CommonCodes");

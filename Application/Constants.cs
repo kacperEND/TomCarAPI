@@ -2,6 +2,8 @@
 {
     public static class Constants
     {
+        public const string Fix = "FIX";
+
         public static class CommonCode
         {
             public static class Currencies

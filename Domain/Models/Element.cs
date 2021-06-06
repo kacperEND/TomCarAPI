@@ -17,5 +17,7 @@ namespace Domain.Models
         public virtual CommonCode CommonCodeName { get; set; }
 
         public decimal? Price { get; set; }
+
+        public double? NetWeight { get; set; }
     }
 }

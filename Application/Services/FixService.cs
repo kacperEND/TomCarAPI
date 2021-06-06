@@ -12,6 +12,7 @@ namespace Application.Services
     public class FixService : IFixService
     {
         private readonly IRepository<Fix> _fixRepository;
+        private readonly IRepository<FixOrder> _fixOrderRepository;
         private readonly IRepository<Customer> _customerRepository;
         private readonly IRepository<Location> _locationRepository;
         private readonly IRepository<Shipment> _shipmentRepository;
@@ -20,6 +21,7 @@ namespace Application.Services
         private readonly ICommonCodeService _commonCodeService;
 
         public FixService(IRepository<Fix> fixRepository,
+            IRepository<FixOrder> fixOrderRepository,
             IRepository<Customer> customerRepository,
             ICommonCodeService commonCodeService,
             IRepository<Location> locationRepository,
@@ -28,6 +30,7 @@ namespace Application.Services
             IRepository<Element> elementRepository)
         {
             _fixRepository = fixRepository;
+            _fixOrderRepository = fixOrderRepository;
             _customerRepository = customerRepository;
             _commonCodeService = commonCodeService;
             _locationRepository = locationRepository;
@@ -36,11 +39,11 @@ namespace Application.Services
             _commonCodeRepository = commonCodeRepository;
         }
 
-        public IEnumerable<FixDto> Get(int? shipmentId, int? customerId, string fixDate, bool inculdeElements, int? pageNo, int? pageSize)
+        public IEnumerable<FixOrderDto> Get(int? shipmentId, int? customerId, string fixDate, bool inculdeElements, int? pageNo, int? pageSize)
         {
             int? itemsToSkip = (pageNo - 1) * pageSize;
 
-            var query = this._fixRepository.Table.Where(item => !item.IsDeleted);
+            var query = this._fixOrderRepository.Table.Where(item => !item.IsDeleted);
 
             if (shipmentId.HasValue)
             {
@@ -52,102 +55,92 @@ namespace Application.Services
                 query = query.Where(item => item.CustomerId == customerId);
             }
 
-            var paged = query.OrderBy(item => item.FixDate).Skip(itemsToSkip.Value).Take(pageSize.Value);
+            var paged = query.OrderBy(item => item.OrderDate).Skip(itemsToSkip.Value).Take(pageSize.Value);
 
             var listOfFixes = paged.ToList().Select(item => item.ConvertToDto(inculdeElements));
             return listOfFixes;
         }
 
-        public FixDto Create(FixDto fixDto)
+        public IEnumerable<FixDto> GetFixs(int? fixOrderId)
         {
-            Fix newFix = new Fix();
-            ValidateFix(newFix, fixDto);
+            var query = this._fixRepository.Table.Where(item => !item.IsDeleted && item.FixOrderId == fixOrderId).OrderBy(item => item.Id);
+            var listOfFixes = query.ToList().Select(item => item.ConvertToDto(true));
 
-            _fixRepository.Create(newFix);
-            _fixRepository.Flush();
-            return newFix.ConvertToDto();
+            return listOfFixes;
         }
 
-        private void ValidateFix(Fix newFix, FixDto fixDto)
+        public FixOrderDto Create(FixOrderDto fixDto)
+        {
+            FixOrder newFixOrder = new FixOrder();
+            ValidateFixOrder(newFixOrder, fixDto);
+            newFixOrder.Number = GenerateFixOrderNumber();
+
+            _fixOrderRepository.Create(newFixOrder);
+            _fixOrderRepository.Flush();
+
+            return newFixOrder.ConvertToDto();
+        }
+
+        public FixOrderDto UpdateFixOrder(FixOrderDto fixDto)
+        {
+            var existingFixOrder = _fixOrderRepository.Get(fixDto.Id);
+            if (existingFixOrder == null) throw new RecordNotFoundException("Nie znaleziono zamówienia Fixu!");
+
+            ValidateFixOrder(existingFixOrder, fixDto);
+
+            _fixOrderRepository.Update(existingFixOrder);
+            _fixOrderRepository.Flush();
+
+            return existingFixOrder.ConvertToDto();
+        }
+
+        private string GenerateFixOrderNumber()
+        {
+            var lastFixOrderID = _fixOrderRepository.Table.OrderByDescending(u => u.Id).FirstOrDefault().Id;
+            lastFixOrderID += 1;
+            return Constants.Fix + "00" + lastFixOrderID.ToString();
+        }
+
+        private void ValidateFixOrder(FixOrder newFixOrder, FixOrderDto fixOrderDto)
         {
             if (
-                   fixDto == null ||
-                   !fixDto.NetWeight.HasValue ||
-                   !fixDto.IncurredCosts.HasValue ||
-                   !fixDto.CurrencyRates.HasValue ||
-                   !fixDto.FixDate.HasValue
+                   fixOrderDto == null ||
+                   !fixOrderDto.NetWeight.HasValue ||
+                   !fixOrderDto.IncurredCosts.HasValue ||
+                   !fixOrderDto.OrderDate.HasValue
            )
             {
                 throw new ValidationException("Brak wymaganych informacji!");
             }
-            newFix.IncurredCosts = fixDto.IncurredCosts;
-            newFix.NetWeight = fixDto.NetWeight;
-            newFix.FixDate = fixDto.FixDate;
+            newFixOrder.IncurredCosts = fixOrderDto.IncurredCosts;
+            newFixOrder.NetWeight = fixOrderDto.NetWeight;
+            newFixOrder.OrderDate = fixOrderDto.OrderDate;
 
-            var shipment = _shipmentRepository.Get(fixDto.ShipmentId);
+            var shipment = _shipmentRepository.Get(fixOrderDto.ShipmentId);
             if (shipment == null) throw new RecordNotFoundException("Nie znaleziono Shipmentu!");
-            newFix.ShipmentId = fixDto.ShipmentId;
+            newFixOrder.ShipmentId = fixOrderDto.ShipmentId;
 
-            var customer = _customerRepository.Get(fixDto.CustomerId);
+            var customer = _customerRepository.Get(fixOrderDto.CustomerId);
             if (customer == null) throw new RecordNotFoundException("Nie znaleziono klienta!");
-            newFix.CustomerId = fixDto.CustomerId;
+            newFixOrder.CustomerId = fixOrderDto.CustomerId;
 
-            if (!string.IsNullOrEmpty(fixDto.WeightUomCode))
+            if (!string.IsNullOrEmpty(fixOrderDto.WeightUomCode))
             {
-                var commonCodeWeightUom = this._commonCodeService.Query(typeof(Constants.CommonCode.WeightUom).Name, fixDto.WeightUomCode).FirstOrDefault();
+                var commonCodeWeightUom = this._commonCodeService.Query(typeof(Constants.CommonCode.WeightUom).Name, fixOrderDto.WeightUomCode).FirstOrDefault();
                 if (commonCodeWeightUom == null)
                     throw new RecordNotFoundException("Nie znaleziono typu wagi!");
 
-                newFix.CommonCodeCurrencyId = commonCodeWeightUom.Id;
+                newFixOrder.CommonCodeWeightUomId = commonCodeWeightUom.Id;
             }
 
-            if (!string.IsNullOrEmpty(fixDto.CurrencyCode))
+            if (!string.IsNullOrEmpty(fixOrderDto.CurrencyCode))
             {
-                var commonCodeCurrency = this._commonCodeService.Query(typeof(Constants.CommonCode.Currencies).Name, fixDto.CurrencyCode).FirstOrDefault();
+                var commonCodeCurrency = this._commonCodeService.Query(typeof(Constants.CommonCode.Currencies).Name, fixOrderDto.CurrencyCode).FirstOrDefault();
                 if (commonCodeCurrency == null)
                     throw new RecordNotFoundException("Nie znaleziono waluty!");
 
-                newFix.CommonCodeCurrencyId = commonCodeCurrency.Id;
+                newFixOrder.CommonCodeCurrencyId = commonCodeCurrency.Id;
             }
-        }
-
-        public void AddEditElements(int? fixId, IList<ElementDto> elementsDto)
-        {
-            if (elementsDto == null) return;
-
-            var fix = _fixRepository.Get(fixId);
-            if (fix == null) throw new RecordNotFoundException("Nie znaleziono Fixu!");
-
-            var isElementValid = elementsDto.Any(item => !item.Price.HasValue || !item.NameCodeId.HasValue);
-            if (isElementValid) throw new ValidationException("Brak wymaganych informacji!");
-
-            foreach (ElementDto elementDto in elementsDto)
-            {
-                var commonCodeName = _commonCodeRepository.Get(elementDto.NameCodeId);
-                if (commonCodeName == null)
-                    throw new ValidationException($"Metal <strong>{elementDto.NameCodeId}</strong> nie istnieje");
-
-                if (elementDto.Id == 0)
-                {
-                    var newElement = new Element();
-                    newElement.CommonCodeNameId = commonCodeName.Id;
-                    newElement.Price = elementDto.Price;
-                    newElement.FixId = fix.Id;
-                    _elementRepository.Create(newElement);
-                }
-                else
-                {
-                    var existingElement = _elementRepository.Get(elementDto.Id);
-                    if (existingElement.FixId != fix.Id)
-                        throw new ValidationException("Brak zgodności danych!");
-
-                    existingElement.Price = elementDto.Price;
-                    existingElement.CommonCodeNameId = elementDto.NameCodeId;
-                    _elementRepository.Update(existingElement);
-                }
-            }
-
-            _elementRepository.Flush();
         }
 
         public string GenerateFixReport(int? fixId)
@@ -169,6 +162,74 @@ namespace Application.Services
         private object GenerateFixReport(Fix fix)
         {
             throw new System.NotImplementedException();
+        }
+
+        public void AddEditFixs(int? fixOrderId, IList<FixDto> fixsDto)
+        {
+            var fixOrder = _fixOrderRepository.Get(fixOrderId);
+            if (fixOrder == null) throw new RecordNotFoundException("Nie znaleziono zamówienia Fixu!");
+
+            var oldFixes = _fixRepository.Table.Where(item => item.FixOrderId == fixOrderId && !item.IsDeleted).ToList();
+
+            foreach (var fixDto in fixsDto)
+            {
+                if (fixDto.Elements != null && fixDto.Elements.Count > 0)
+                {
+                    var newFix = new Fix
+                    {
+                        FixOrderId = fixOrder.Id
+                    };
+
+                    _fixRepository.Create(newFix);
+                    _fixRepository.Flush();
+
+                    AddEditFixsElements(newFix.Id, fixDto.Elements);
+                }
+            }
+
+            foreach (var oldFix in oldFixes)
+            {
+                _fixRepository.Delete(oldFix.Id);
+            }
+            _fixRepository.Flush();
+        }
+
+        public void AddEditFixsElements(int? fixId, IList<ElementDto> elementsDto)
+        {
+            if (elementsDto == null) return;
+
+            var isElementValid = elementsDto.Any(item => !item.Price.HasValue || string.IsNullOrEmpty(item.NameCodeCode));
+            if (isElementValid) throw new ValidationException("Brak wymaganych informacji!");
+
+            foreach (ElementDto elementDto in elementsDto)
+            {
+                var commonCodeName = this._commonCodeService.Query(typeof(Constants.CommonCode.ChemicalElementName).Name, elementDto.NameCodeCode).FirstOrDefault();
+                if (commonCodeName == null)
+                    throw new ValidationException($"Metal <strong>{elementDto.NameCodeId}</strong> nie istnieje");
+
+                if (elementDto.Id == 0)
+                {
+                    var newElement = new Element();
+                    newElement.CommonCodeNameId = commonCodeName.Id;
+                    newElement.Price = elementDto.Price;
+                    newElement.NetWeight = elementDto.NetWeight;
+                    newElement.FixId = fixId;
+                    _elementRepository.Create(newElement);
+                }
+                else
+                {
+                    var existingElement = _elementRepository.Get(elementDto.Id);
+                    if (existingElement.FixId != fixId)
+                        throw new ValidationException("Brak zgodności danych!");
+
+                    existingElement.Price = elementDto.Price;
+                    existingElement.NetWeight = elementDto.NetWeight;
+                    existingElement.CommonCodeNameId = elementDto.NameCodeId;
+                    _elementRepository.Update(existingElement);
+                }
+            }
+
+            _elementRepository.Flush();
         }
     }
 }

@@ -45,6 +45,7 @@ namespace Infrastructure.Data
             modelBuilder.Entity<CommonCode>().HasIndex(p => new { p.Name, p.Code }).IsUnique();
             modelBuilder.Entity<Location>().HasIndex(p => new { p.Name, p.Country }).IsUnique();
             modelBuilder.Entity<Shipment>().HasIndex(p => p.Code).IsUnique();
+            modelBuilder.Entity<FixOrder>().HasIndex(p => p.Number).IsUnique();
             modelBuilder.Entity<Element>();
             modelBuilder.Entity<Fix>();
         }
