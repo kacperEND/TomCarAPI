@@ -1,8 +1,12 @@
 ﻿using Application.Dto;
 using Application.Exceptions;
 using Application.Interfaces;
+using Application.Reports;
+using Application.Reports.Models;
 using Domain.Interfaces;
 using Domain.Models;
+using DotLiquid;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ValidationException = Application.Exceptions.ValidationException;
@@ -143,25 +147,57 @@ namespace Application.Services
             }
         }
 
-        public string GenerateFixReport(int? fixId)
+        public string GenerateFixOrderReport(int? fixOrderId)
         {
-            var fix = this._fixRepository.Get(fixId);
-            if (fix == null)
+            var fixOrder = this._fixOrderRepository.Get(fixOrderId);
+            if (fixOrder == null)
                 throw new RecordNotFoundException("Nie znaleziono Fixu!");
 
-            var fixReport = GenerateFixReport(fix);
+            var fixReport = GenerateFixReport(fixOrder);
 
-            var template = "";
+            var template = fixOrder.Shipment.Description;
 
             var label = string.Empty;
-            //label += this._templateEngine.Parse(template, fixReport);
+            label += TemplateEngine.Parse(template, fixReport);
 
             return label;
         }
 
-        private object GenerateFixReport(Fix fix)
+        private FixOrderReport GenerateFixReport(FixOrder fixOrder)
         {
-            throw new System.NotImplementedException();
+            FixOrderReport fixOrderReport = new FixOrderReport();
+            fixOrderReport.ShipmentCode = fixOrder.Shipment.Code;
+            fixOrderReport.OrderDate = fixOrder.OrderDate.ToString();
+            fixOrderReport.WeightUom = fixOrder.CommonCodeWeightUom.Code;
+            fixOrderReport.Currency = fixOrder.CommonCodeCurrency.Code;
+            fixOrderReport.NetWeight = (double)fixOrder.NetWeight;
+            fixOrderReport.NetWeight = (double)fixOrder.IncurredCosts;
+            fixOrderReport.Cost = Convert.ToDouble(fixOrder.NetWeight) * Convert.ToDouble(fixOrder.IncurredCosts);
+
+            fixOrderReport.SummaryResult = fixOrderReport.SumFixs - fixOrderReport.Cost;
+            fixOrderReport.SumFixs = 12;
+
+            int intedx = 1;
+            foreach (var fix in fixOrder.Fixs)
+            {
+                FixReport fixReport = new FixReport(intedx);
+
+                foreach (var element in fix.Elements)
+                {
+                    ElementReport elementReport = new ElementReport();
+                    elementReport.Code = element.CommonCodeName.Code;
+                    elementReport.Weight = (double)element.NetWeight;
+                    elementReport.Price = Convert.ToDouble(element.Price);
+
+                    elementReport.Result = elementReport.Weight * elementReport.Price;
+                    fixReport.Elements.Add(elementReport);
+                }
+
+                fixOrderReport.Fixs.Add(fixReport);
+                intedx++;
+            }
+
+            return fixOrderReport;
         }
 
         public void AddEditFixs(int? fixOrderId, IList<FixDto> fixsDto)

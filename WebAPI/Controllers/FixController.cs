@@ -89,5 +89,13 @@ namespace WebAPI.Controllers
             _fixService.AddEditFixsElements(fixId, elementsDto);
             return Ok();
         }
+
+        [HttpGet("GenerateFixOrderReport")]
+        public IActionResult GenerateFixOrderReport(int? fixOrderId)
+        {
+            var fixOrderReportLabel = _fixService.GenerateFixOrderReport(fixOrderId);
+
+            return Ok(fixOrderReportLabel); ;
+        }
     }
 }

@@ -23,20 +23,15 @@ namespace Domain.Models
         public int? ShipmentId { get; set; }
 
         public virtual Shipment Shipment { get; set; }
-
         public int? CustomerId { get; set; }
-
         public virtual Customer Customer { get; set; }
-
         public DateTime? OrderDate { get; set; }
-
         public int? CommonCodeCurrencyId { get; set; }
-
         public virtual CommonCode CommonCodeCurrency { get; set; }
-
         public int? CommonCodeWeightUomId { get; set; }
-
         public virtual CommonCode CommonCodeWeightUom { get; set; }
+        public int? CommonCodeStatusId { get; set; }
+        public virtual CommonCode CommonCodeStatus { get; set; }
         public virtual ICollection<Fix> Fixs { get; set; }
     }
 }

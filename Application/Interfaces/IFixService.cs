@@ -10,7 +10,7 @@ namespace Application.Interfaces
 
         FixOrderDto Create(FixOrderDto fixDto);
 
-        string GenerateFixReport(int? fixId);
+        string GenerateFixOrderReport(int? fixId);
 
         IEnumerable<FixOrderDto> Get(int? shipmentId, int? customerId, string fixDate, bool inculdeElements, int? pageNo, int? pageSize);
 

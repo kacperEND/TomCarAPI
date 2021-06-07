@@ -14,9 +14,12 @@ namespace Domain.Models
 
         public string Name { get; set; }
         public string Description { get; set; }
-
         public virtual ICollection<Fix> Fixs { get; set; }
         public DateTime? DateStart { get; set; }
         public DateTime? DateEnd { get; set; }
+
+        public int? CommonCodeStatusId { get; set; }
+
+        public virtual CommonCode CommonCodeStatus { get; set; }
     }
 }
