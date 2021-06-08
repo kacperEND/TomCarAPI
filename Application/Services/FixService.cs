@@ -171,16 +171,12 @@ namespace Application.Services
             fixOrderReport.WeightUom = fixOrder.CommonCodeWeightUom.Code;
             fixOrderReport.Currency = fixOrder.CommonCodeCurrency.Code;
             fixOrderReport.NetWeight = (double)fixOrder.NetWeight;
-            fixOrderReport.NetWeight = (double)fixOrder.IncurredCosts;
-            fixOrderReport.Cost = Convert.ToDouble(fixOrder.NetWeight) * Convert.ToDouble(fixOrder.IncurredCosts);
+            fixOrderReport.IncurredCosts = (decimal)fixOrder.IncurredCosts;
 
-            fixOrderReport.SummaryResult = fixOrderReport.SumFixs - fixOrderReport.Cost;
-            fixOrderReport.SumFixs = 12;
-
-            int intedx = 1;
+            int index = 1;
             foreach (var fix in fixOrder.Fixs)
             {
-                FixReport fixReport = new FixReport(intedx);
+                FixReport fixReport = new FixReport(index);
 
                 foreach (var element in fix.Elements)
                 {
@@ -190,12 +186,17 @@ namespace Application.Services
                     elementReport.Price = Convert.ToDouble(element.Price);
 
                     elementReport.Result = elementReport.Weight * elementReport.Price;
+
+                    fixOrderReport.SumFixs += elementReport.Result;
                     fixReport.Elements.Add(elementReport);
                 }
 
                 fixOrderReport.Fixs.Add(fixReport);
-                intedx++;
+                index++;
             }
+
+            fixOrderReport.Cost = Convert.ToDouble(fixOrder.NetWeight) * Convert.ToDouble(fixOrder.IncurredCosts);
+            fixOrderReport.SummaryResult = fixOrderReport.SumFixs - fixOrderReport.Cost;
 
             return fixOrderReport;
         }

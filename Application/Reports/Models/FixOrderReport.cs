@@ -25,11 +25,11 @@ namespace Application.Reports.Models
     {
         public FixReport(int number)
         {
-            Number = number;
+            Number = "FIX<br>" + number.ToString();
             Elements = new List<ElementReport>();
         }
 
-        public int Number { get; set; }
+        public string Number { get; set; }
         public List<ElementReport> Elements { get; set; }
     }
 

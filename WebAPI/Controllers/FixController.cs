@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using WebAPI.DtoModels;
 
 namespace WebAPI.Controllers
 {
@@ -90,12 +91,17 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpGet("GenerateFixOrderReport")]
+        [HttpGet("GenerateFixOrderReport/{fixOrderId}")]
         public IActionResult GenerateFixOrderReport(int? fixOrderId)
         {
             var fixOrderReportLabel = _fixService.GenerateFixOrderReport(fixOrderId);
+            var reportDto = new ReportDto
+            {
+                Name = "FixOrderDto",
+                Body = fixOrderReportLabel
+            };
 
-            return Ok(fixOrderReportLabel); ;
+            return Ok(reportDto); ;
         }
     }
 }
