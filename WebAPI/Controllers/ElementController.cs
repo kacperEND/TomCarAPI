@@ -1,7 +1,5 @@
-﻿using Application.Dto;
-using Application.Interfaces;
+﻿using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 
 namespace WebAPI.Controllers
 {

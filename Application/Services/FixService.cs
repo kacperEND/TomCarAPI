@@ -5,7 +5,6 @@ using Application.Reports;
 using Application.Reports.Models;
 using Domain.Interfaces;
 using Domain.Models;
-using DotLiquid;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -159,7 +158,6 @@ namespace Application.Services
             var fixReport = GenerateFixReport(fixOrder);
 
             var template = string.Empty;
-            //template = _appConfigService.GetOrAdd<string>(Constants.LabelTemplates.FixOrderReportTemplate, () => template.Replace("\r\n", string.Empty));
             template = _appConfigService.Get(Constants.LabelTemplates.FixOrderReportTemplate);
 
             var label = string.Empty;
