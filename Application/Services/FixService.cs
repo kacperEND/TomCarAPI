@@ -22,6 +22,7 @@ namespace Application.Services
         private readonly IRepository<Shipment> _shipmentRepository;
         private readonly IRepository<Element> _elementRepository;
         private readonly IRepository<CommonCode> _commonCodeRepository;
+        private readonly IAppConfigService _appConfigService;
         private readonly ICommonCodeService _commonCodeService;
 
         public FixService(IRepository<Fix> fixRepository,
@@ -31,7 +32,8 @@ namespace Application.Services
             IRepository<Location> locationRepository,
             IRepository<Shipment> shipmentRepository,
             IRepository<CommonCode> commonCodeRepository,
-            IRepository<Element> elementRepository)
+            IRepository<Element> elementRepository,
+            IAppConfigService appConfigService)
         {
             _fixRepository = fixRepository;
             _fixOrderRepository = fixOrderRepository;
@@ -41,6 +43,7 @@ namespace Application.Services
             _shipmentRepository = shipmentRepository;
             _elementRepository = elementRepository;
             _commonCodeRepository = commonCodeRepository;
+            _appConfigService = appConfigService;
         }
 
         public IEnumerable<FixOrderDto> Get(int? shipmentId, int? customerId, string fixDate, bool inculdeElements, int? pageNo, int? pageSize)
@@ -155,7 +158,9 @@ namespace Application.Services
 
             var fixReport = GenerateFixReport(fixOrder);
 
-            var template = fixOrder.Shipment.Description;
+            var template = string.Empty;
+            //template = _appConfigService.GetOrAdd<string>(Constants.LabelTemplates.FixOrderReportTemplate, () => template.Replace("\r\n", string.Empty));
+            template = _appConfigService.Get(Constants.LabelTemplates.FixOrderReportTemplate);
 
             var label = string.Empty;
             label += TemplateEngine.Parse(template, fixReport);

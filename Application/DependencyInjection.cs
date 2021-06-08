@@ -15,7 +15,7 @@ namespace Application
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<IFixService, FixService>();
             services.AddScoped<IShipmentService, ShipmentService>();
-            services.AddScoped<IFixService, FixService>();
+            services.AddScoped<IAppConfigService, AppConfigService>();
             return services;
         }
     }

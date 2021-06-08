@@ -4,6 +4,11 @@
     {
         public const string Fix = "FIX";
 
+        public static class LabelTemplates
+        {
+            public const string FixOrderReportTemplate = "FixOrderReportTemplate";
+        }
+
         public static class CommonCode
         {
             public static class Currencies
