@@ -8,7 +8,7 @@ namespace Infrastructure.Data
         public SqlDBContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<SqlDBContext>();
-            optionsBuilder.UseNpgsql("Host=localhost;Database=TomCarDev;Username=postgres;Password=admin");
+            optionsBuilder.UseNpgsql("");
             return new SqlDBContext(optionsBuilder.Options);
         }
     }
