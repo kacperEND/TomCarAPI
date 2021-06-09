@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Infrastructure.Data
 {
-    public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<SqlServerDBContext>
+    public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<SqlDBContext>
     {
-        public SqlServerDBContext CreateDbContext(string[] args)
+        public SqlDBContext CreateDbContext(string[] args)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<SqlServerDBContext>();
-            optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=TomCarDev;Trusted_Connection=True;MultipleActiveResultSets=true");
-            return new SqlServerDBContext(optionsBuilder.Options);
+            var optionsBuilder = new DbContextOptionsBuilder<SqlDBContext>();
+            optionsBuilder.UseNpgsql("Host=localhost;Database=TomCarDev;Username=postgres;Password=admin");
+            return new SqlDBContext(optionsBuilder.Options);
         }
     }
 }

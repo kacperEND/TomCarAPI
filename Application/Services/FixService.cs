@@ -102,8 +102,13 @@ namespace Application.Services
 
         private string GenerateFixOrderNumber()
         {
-            var lastFixOrderID = _fixOrderRepository.Table.OrderByDescending(u => u.Id).FirstOrDefault().Id;
-            lastFixOrderID += 1;
+            var lastFixOrderID = 1;
+            if (_fixOrderRepository.Table.Any(item => item.Id == 1))
+            {
+                lastFixOrderID = _fixOrderRepository.Table.OrderByDescending(u => u.Id).FirstOrDefault().Id;
+                lastFixOrderID += 1;
+            }
+
             return Constants.Fix + "00" + lastFixOrderID.ToString();
         }
 

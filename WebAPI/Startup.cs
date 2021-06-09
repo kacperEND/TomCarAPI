@@ -28,7 +28,7 @@ namespace WebAPI
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(o =>
             {
-                o.Authority = "http://localhost:5000";
+                o.Authority = Configuration.GetSection("AUTH_API_URL").Value;
                 o.Audience = "resourceapi";
                 o.RequireHttpsMetadata = false;
             });

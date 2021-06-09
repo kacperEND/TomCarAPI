@@ -1,9 +1,11 @@
 ﻿using Application.Dto;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
 {
+    [Authorize(Policy = "ApiReader")]
     [Route("api/[controller]")]
     [ApiController]
     public class LocationsController : ControllerBase

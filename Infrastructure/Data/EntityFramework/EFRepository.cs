@@ -10,9 +10,9 @@ namespace Infrastructure.Data
 {
     public class EFRepository<T> : IRepository<T>, IDisposable where T : class
     {
-        private readonly SqlServerDBContext _dbContext;
+        private readonly SqlDBContext _dbContext;
 
-        public EFRepository(SqlServerDBContext dbContext)
+        public EFRepository(SqlDBContext dbContext)
         {
             this._dbContext = dbContext;
         }

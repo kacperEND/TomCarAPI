@@ -1,10 +1,12 @@
 ﻿using Application.Dto;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
 namespace WebAPI.Controllers
 {
+    [Authorize(Policy = "ApiReader")]
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
@@ -16,6 +18,7 @@ namespace WebAPI.Controllers
             _customerService = customerService;
         }
 
+        [Authorize(Policy = "Consumer")]
         [HttpGet("SearchCustomers")]
         public CollectionResult<CustomerDto> SearchCustomers(string searchTerm = null, int? pageNo = 1, int? pageSize = Constants.DEFAULT_PAGE_SIZE)
         {

@@ -10,7 +10,6 @@ namespace Domain.Common
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Column(TypeName = "bit")]
         public bool IsDeleted { get; set; }
 
         public bool IsTransient()

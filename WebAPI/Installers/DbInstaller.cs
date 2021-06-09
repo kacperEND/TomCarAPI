@@ -9,8 +9,8 @@ namespace WebAPI.Installers
     {
         public void InstallServices(IServiceCollection services, IConfiguration Configuration)
         {
-            services.AddDbContext<SqlServerDBContext>(options =>
-               options.UseSqlServer(Configuration.GetConnectionString("DbConnString")));
+            services.AddDbContext<SqlDBContext>(options =>
+               options.UseNpgsql(Configuration.GetConnectionString("DbConnString")));
         }
     }
 }

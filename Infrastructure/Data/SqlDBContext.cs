@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace Infrastructure.Data
 {
-    public class SqlServerDBContext : DbContext
+    public class SqlDBContext : DbContext
     {
-        public SqlServerDBContext(DbContextOptions<SqlServerDBContext> options) : base(options)
+        public SqlDBContext(DbContextOptions<SqlDBContext> options) : base(options)
         {
         }
 

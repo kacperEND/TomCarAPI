@@ -1,5 +1,6 @@
 ﻿using Application.Dto;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using WebAPI.DtoModels;
 
 namespace WebAPI.Controllers
 {
+    [Authorize(Policy = "ApiReader")]
     [Route("api/[controller]")]
     [ApiController]
     public class FixController : ControllerBase
