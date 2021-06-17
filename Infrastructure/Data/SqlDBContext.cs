@@ -47,8 +47,10 @@ namespace Infrastructure.Data
             modelBuilder.Entity<Shipment>().HasIndex(p => p.Code).IsUnique();
             modelBuilder.Entity<FixOrder>().HasIndex(p => p.Number).IsUnique();
             modelBuilder.Entity<AppConfig>().HasIndex(p => p.Key).IsUnique();
-            modelBuilder.Entity<Element>();
+            modelBuilder.Entity<Element>().HasOne(p => p.Fix)
+            .WithMany(b => b.Elements).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Fix>();
+            modelBuilder.Entity<Calculation>();
         }
 
         //private void SetAuditableModelModificationInfo(AuditableModel model)

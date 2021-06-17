@@ -19,6 +19,7 @@ namespace Application.Services
         private readonly IRepository<Customer> _customerRepository;
         private readonly IRepository<Location> _locationRepository;
         private readonly IRepository<Shipment> _shipmentRepository;
+        private readonly IRepository<Calculation> _calculationRepository;
         private readonly IRepository<Element> _elementRepository;
         private readonly IRepository<CommonCode> _commonCodeRepository;
         private readonly IAppConfigService _appConfigService;
@@ -32,7 +33,8 @@ namespace Application.Services
             IRepository<Shipment> shipmentRepository,
             IRepository<CommonCode> commonCodeRepository,
             IRepository<Element> elementRepository,
-            IAppConfigService appConfigService)
+            IAppConfigService appConfigService,
+            IRepository<Calculation> calculationRepository)
         {
             _fixRepository = fixRepository;
             _fixOrderRepository = fixOrderRepository;
@@ -43,6 +45,7 @@ namespace Application.Services
             _elementRepository = elementRepository;
             _commonCodeRepository = commonCodeRepository;
             _appConfigService = appConfigService;
+            _calculationRepository = calculationRepository;
         }
 
         public IEnumerable<FixOrderDto> Get(int? shipmentId, int? customerId, string fixDate, bool inculdeElements, int? pageNo, int? pageSize)
@@ -61,7 +64,7 @@ namespace Application.Services
                 query = query.Where(item => item.CustomerId == customerId);
             }
 
-            var paged = query.OrderBy(item => item.OrderDate).Skip(itemsToSkip.Value).Take(pageSize.Value);
+            var paged = query.OrderByDescending(item => item.OrderDate).Skip(itemsToSkip.Value).Take(pageSize.Value);
 
             var listOfFixes = paged.ToList().Select(item => item.ConvertToDto(inculdeElements));
             return listOfFixes;
@@ -81,10 +84,44 @@ namespace Application.Services
             ValidateFixOrder(newFixOrder, fixDto);
             newFixOrder.Number = GenerateFixOrderNumber();
 
+            var calc = GenerateNewCalculation();
+            newFixOrder.CalculationId = calc.Id;
+
             _fixOrderRepository.Create(newFixOrder);
             _fixOrderRepository.Flush();
 
             return newFixOrder.ConvertToDto();
+        }
+
+        private Calculation GenerateNewCalculation()
+        {
+            var ptCode = _commonCodeService.Get(typeof(Constants.CommonCode.ChemicalElementName).Name, Constants.CommonCode.ChemicalElementName.Platinium);
+            var pdCode = _commonCodeService.Get(typeof(Constants.CommonCode.ChemicalElementName).Name, Constants.CommonCode.ChemicalElementName.Palladium);
+            var rhCode = _commonCodeService.Get(typeof(Constants.CommonCode.ChemicalElementName).Name, Constants.CommonCode.ChemicalElementName.Rhodium);
+
+            var calculation = new Calculation();
+            calculation.Pt = new Element { CommonCodeNameId = ptCode.Id, Percent = 0.98 };
+            calculation.Pd = new Element { CommonCodeNameId = pdCode.Id, Percent = 0.98 };
+            calculation.Rh = new Element { CommonCodeNameId = rhCode.Id, Percent = 0.88 };
+
+            calculation.MainFirstElement = new Element { CommonCodeNameId = ptCode.Id };
+            calculation.MainSecondElement = new Element { CommonCodeNameId = pdCode.Id };
+            calculation.MainThirdElement = new Element { CommonCodeNameId = rhCode.Id };
+
+            calculation.SecondaryFirstElement = new Element { CommonCodeNameId = ptCode.Id };
+            calculation.SecondarySecondElement = new Element { CommonCodeNameId = pdCode.Id };
+            calculation.SecondaryThirdElement = new Element { CommonCodeNameId = rhCode.Id };
+
+            calculation.BonusFirstElement = new Element { CommonCodeNameId = ptCode.Id };
+            calculation.BonusSecondElement = new Element { CommonCodeNameId = pdCode.Id };
+            calculation.BonusThirdElement = new Element { CommonCodeNameId = rhCode.Id };
+
+            calculation.ResultPercent = 0;
+
+            _calculationRepository.Create(calculation);
+            _calculationRepository.Flush();
+
+            return calculation;
         }
 
         public FixOrderDto UpdateFixOrder(FixOrderDto fixDto)
@@ -103,7 +140,7 @@ namespace Application.Services
         private string GenerateFixOrderNumber()
         {
             var lastFixOrderID = 1;
-            if (_fixOrderRepository.Table.Any(item => item.Id == 1))
+            if (_fixOrderRepository.Table.Any(item => item.Id > 0))
             {
                 lastFixOrderID = _fixOrderRepository.Table.OrderByDescending(u => u.Id).FirstOrDefault().Id;
                 lastFixOrderID += 1;
@@ -160,7 +197,7 @@ namespace Application.Services
             if (fixOrder == null)
                 throw new RecordNotFoundException("Nie znaleziono Fixu!");
 
-            var fixReport = GenerateFixReport(fixOrder);
+            var fixReport = GenerateFixReportModel(fixOrder);
 
             var template = string.Empty;
             template = _appConfigService.Get(Constants.LabelTemplates.FixOrderReportTemplate);
@@ -171,10 +208,11 @@ namespace Application.Services
             return label;
         }
 
-        private FixOrderReport GenerateFixReport(FixOrder fixOrder)
+        private FixOrderReport GenerateFixReportModel(FixOrder fixOrder)
         {
             FixOrderReport fixOrderReport = new FixOrderReport();
             fixOrderReport.ShipmentCode = fixOrder.Shipment.Code;
+            fixOrderReport.CustomerName = fixOrder.Customer.CompanyName;
             fixOrderReport.OrderDate = fixOrder.OrderDate.ToString();
             fixOrderReport.WeightUom = fixOrder.CommonCodeWeightUom.Code;
             fixOrderReport.Currency = fixOrder.CommonCodeCurrency.Code;
@@ -235,8 +273,8 @@ namespace Application.Services
             foreach (var oldFix in oldFixes)
             {
                 _fixRepository.Delete(oldFix.Id);
+                _fixRepository.Flush();
             }
-            _fixRepository.Flush();
         }
 
         public void AddEditFixsElements(int? fixId, IList<ElementDto> elementsDto)
@@ -275,6 +313,129 @@ namespace Application.Services
             }
 
             _elementRepository.Flush();
+        }
+
+        public CalculationDto UpdateCalculation(CalculationDto calculationDto)
+        {
+            var existingCalculation = _calculationRepository.Get(calculationDto.Id);
+            if (existingCalculation == null) throw new RecordNotFoundException("Nie znaleziono zamówienia obiektu!");
+
+            UpdateElement(calculationDto.Pd);
+            UpdateElement(calculationDto.Rh);
+            UpdateElement(calculationDto.Pt);
+            UpdateElement(calculationDto.MainFirstElement);
+            UpdateElement(calculationDto.MainSecondElement);
+            UpdateElement(calculationDto.MainThirdElement);
+            UpdateElement(calculationDto.SecondaryFirstElement);
+            UpdateElement(calculationDto.SecondarySecondElement);
+            UpdateElement(calculationDto.SecondaryThirdElement);
+            UpdateElement(calculationDto.BonusFirstElement);
+            UpdateElement(calculationDto.BonusSecondElement);
+            UpdateElement(calculationDto.BonusThirdElement);
+
+            existingCalculation.CopyFromDto(calculationDto);
+            _calculationRepository.Update(existingCalculation);
+            _calculationRepository.Flush();
+
+            return existingCalculation.ConvertToDto();
+        }
+
+        private void UpdateElement(ElementDto elementDto)
+        {
+            var element = _elementRepository.Get(elementDto.Id);
+            element.CopyFromDto(elementDto);
+            _elementRepository.Update(element);
+            _elementRepository.Flush();
+        }
+
+        public string GenerateCalculationReport(int? fixOrderId)
+        {
+            var fixOrder = this._fixOrderRepository.Get(fixOrderId);
+            if (fixOrder == null)
+                throw new RecordNotFoundException("Nie znaleziono Fixu!");
+
+            var templateModel = GenerateCalculationReportModel(fixOrder);
+
+            var template = string.Empty;
+            template = _appConfigService.Get(Constants.LabelTemplates.CalculationReportTemplate);
+
+            var label = string.Empty;
+            label += TemplateEngine.Parse(template, templateModel);
+
+            return label;
+        }
+
+        private CalculationReport GenerateCalculationReportModel(FixOrder fixOrder)
+        {
+            var calculation = fixOrder.Calculation;
+
+            CalculationReport calculationReport = new CalculationReport();
+            calculationReport.ShipmentCode = fixOrder.Shipment.Code;
+            calculationReport.CustomerName = fixOrder.Customer.CompanyName;
+            calculationReport.CalculationDate = calculation.CalculationDate.ToString();
+            calculationReport.WeightUom = fixOrder.CommonCodeWeightUom.Code;
+            calculationReport.Currency = fixOrder.CommonCodeCurrency.Code;
+
+            calculationReport.MainFirstElementWeight = ToDouble(calculation.MainFirstElement.NetWeight);
+            calculationReport.MainSecondElementWeight = ToDouble(calculation.MainSecondElement.NetWeight);
+            calculationReport.MainThirdElementWeight = ToDouble(calculation.MainThirdElement.NetWeight);
+
+            calculationReport.SecondaryFirstElementWeight = ToDouble(calculation.SecondaryFirstElement.NetWeight);
+            calculationReport.SecondarySecondElementWeight = ToDouble(calculation.SecondarySecondElement.NetWeight);
+            calculationReport.SecondaryThirdElementWeight = ToDouble(calculation.SecondaryThirdElement.NetWeight);
+
+            calculationReport.BonusFirstElementWeight = ToDouble(calculation.BonusFirstElement.NetWeight);
+            calculationReport.BonusSecondElementWeight = ToDouble(calculation.BonusSecondElement.NetWeight);
+            calculationReport.BonusThirdElementWeight = ToDouble(calculation.BonusThirdElement.NetWeight);
+
+            calculationReport.PtNetWeight = ToDouble(calculation.Pt.NetWeight);
+            calculationReport.PtPrice = ToDouble(calculation.Pt.Price);
+            calculationReport.PtResult = ToDouble(calculation.Pt.Result);
+            calculationReport.PtPercent = ToDouble(calculation.Pt.Percent);
+            var ptSummary = calculationReport.PtNetWeight * calculationReport.PtPrice * calculationReport.PtResult * calculationReport.PtPercent;
+            calculationReport.PtSummary = Math.Round(ToDouble(ptSummary), 2);
+
+            calculationReport.PdNetWeight = ToDouble(calculation.Pd.NetWeight);
+            calculationReport.PdPrice = ToDouble(calculation.Pd.Price);
+            calculationReport.PdResult = ToDouble(calculation.Pd.Result);
+            calculationReport.PdPercent = ToDouble(calculation.Pd.Percent);
+            var pdSummary = calculationReport.PdNetWeight * calculationReport.PdPrice * calculationReport.PdResult * calculationReport.PdPercent;
+            calculationReport.PdSummary = Math.Round(ToDouble(pdSummary), 2);
+
+            calculationReport.RhNetWeight = ToDouble(calculation.Rh.NetWeight);
+            calculationReport.RhPrice = ToDouble(calculation.Rh.Price);
+            calculationReport.RhResult = ToDouble(calculation.Rh.Result);
+            calculationReport.RhPercent = ToDouble(calculation.Rh.Percent);
+            var rhSummary = calculationReport.RhNetWeight * calculationReport.RhPrice * calculationReport.RhResult * calculationReport.RhPercent;
+            calculationReport.RhSummary = Math.Round(ToDouble(rhSummary), 2);
+
+            var calculationModelElementsSum = calculationReport.PtSummary + calculationReport.PdSummary + calculationReport.RhSummary;
+            calculationReport.CalculationModelElementsSum = Math.Round(ToDouble(calculationModelElementsSum), 2);
+
+            calculationReport.Weight = calculation.Weight;
+            calculationReport.Price = calculation.Price;
+            var calculationModelCostsSum = calculationReport.Weight * calculationReport.Price;
+            calculationReport.CalculationModelCostsSum = Math.Round(ToDouble(calculationModelCostsSum), 2);
+
+            calculationReport.ResultPercent = calculation.ResultPercent;
+            var calculationModelResultSummary = (calculationReport.CalculationModelElementsSum - calculationReport.CalculationModelCostsSum) * (1 - calculationReport.ResultPercent / 100);
+            calculationReport.CalculationModelResultSummary = Math.Round(ToDouble(calculationModelResultSummary), 2);
+
+            var calculationModelSummaryPrice = calculationReport.CalculationModelResultSummary / calculationReport.Weight;
+            calculationReport.CalculationModelSummaryPrice = Math.Round(ToDouble(calculationModelSummaryPrice), 2);
+
+            calculationReport.InvoiceSum = calculation.InvoiceSum;
+            calculationReport.InvoicePrice = calculation.InvoicePrice;
+
+            var calculationModelForInvoiceResult = calculationReport.InvoiceSum * calculationReport.InvoicePrice;
+            calculationReport.CalculationModelForInvoiceResult = Math.Round(ToDouble(calculationModelForInvoiceResult), 2);
+
+            return calculationReport;
+        }
+
+        public double ToDouble(object value)
+        {
+            return value == null ? 0 : ((IConvertible)value).ToDouble(null);
         }
     }
 }

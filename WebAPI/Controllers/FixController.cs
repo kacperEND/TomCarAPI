@@ -93,14 +93,34 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
+        [HttpPut("UpdateCalculation/{fixOrderId}")]
+        public IActionResult UpdateCalculation(int fixOrderId, CalculationDto calculationDto)
+        {
+            var newFixDto = _fixService.UpdateCalculation(calculationDto);
+            return Ok(newFixDto);
+        }
+
         [HttpGet("GenerateFixOrderReport/{fixOrderId}")]
         public IActionResult GenerateFixOrderReport(int? fixOrderId)
         {
             var fixOrderReportLabel = _fixService.GenerateFixOrderReport(fixOrderId);
             var reportDto = new ReportDto
             {
-                Name = "FixOrderDto",
+                Name = "fixOrderReportLabel",
                 Body = fixOrderReportLabel
+            };
+
+            return Ok(reportDto); ;
+        }
+
+        [HttpGet("GenerateCalculationReport/{fixOrderId}")]
+        public IActionResult GenerateCalculationReport(int? fixOrderId)
+        {
+            string calculationReport = _fixService.GenerateCalculationReport(fixOrderId);
+            var reportDto = new ReportDto
+            {
+                Name = "CalculationReport",
+                Body = calculationReport
             };
 
             return Ok(reportDto); ;

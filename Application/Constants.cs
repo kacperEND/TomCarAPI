@@ -7,6 +7,7 @@
         public static class LabelTemplates
         {
             public const string FixOrderReportTemplate = "FixOrderReportTemplate";
+            public const string CalculationReportTemplate = "CalculationReportTemplate";
         }
 
         public static class CommonCode

@@ -32,6 +32,8 @@ namespace Domain.Models
         public virtual CommonCode CommonCodeWeightUom { get; set; }
         public int? CommonCodeStatusId { get; set; }
         public virtual CommonCode CommonCodeStatus { get; set; }
+        public int? CalculationId { get; set; }
+        public virtual Calculation Calculation { get; set; }
         public virtual ICollection<Fix> Fixs { get; set; }
     }
 }
