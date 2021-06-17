@@ -18,5 +18,7 @@ namespace Application.Interfaces
         IEnumerable<FixDto> GetFixs(int? fixOrderId);
 
         FixOrderDto UpdateFixOrder(FixOrderDto fixDto);
+        string GenerateCalculationReport(int? calculationId);
+        CalculationDto UpdateCalculation(CalculationDto calculationDto);
     }
 }

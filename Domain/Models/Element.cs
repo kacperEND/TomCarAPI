@@ -7,7 +7,6 @@ namespace Domain.Models
     [Table("Elements")]
     public class Element : AuditableModel
     {
-        [Required]
         public int? FixId { get; set; }
 
         public virtual Fix Fix { get; set; }
@@ -19,5 +18,7 @@ namespace Domain.Models
         public decimal? Price { get; set; }
 
         public double? NetWeight { get; set; }
+        public double? Percent { get; set; }
+        public double? Result { get; set; }
     }
 }

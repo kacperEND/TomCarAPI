@@ -7,8 +7,7 @@ namespace Domain.Models
     [Table("Customers")]
     public class Customer : AuditableModel
     {
-        [Required]
-        [Column(TypeName = "varchar(50)")]
+        [Column(TypeName = "varchar(500)")]
         public string Name { get; set; }
 
         [Column(TypeName = "varchar(50)")]

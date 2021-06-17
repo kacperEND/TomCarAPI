@@ -25,6 +25,7 @@ namespace Application.Dto
         public int? LocationId { get; set; }
         public string LocationName { get; set; }
         public IList<FixDto> Fixs { get; set; }
+        public CalculationDto Calculation { get; set; }
     }
 
     public static class FixOrderDtoExtension
@@ -62,7 +63,7 @@ namespace Application.Dto
             fixOrderDto.ShipmentId = fixOrder.ShipmentId;
             fixOrderDto.ShipmentCode = fixOrder.Shipment.Code;
             fixOrderDto.CustomerId = fixOrder.CustomerId;
-            fixOrderDto.CustomerName = fixOrder.Customer?.Name;
+            fixOrderDto.CustomerName = fixOrder.Customer?.CompanyName;
             fixOrderDto.OrderDate = fixOrder.OrderDate;
             fixOrderDto.CurrencyId = fixOrder.CommonCodeCurrencyId.HasValue ? fixOrder.CommonCodeCurrencyId : null;
             fixOrderDto.CurrencyName = fixOrder.CommonCodeCurrency?.Name;
@@ -73,6 +74,7 @@ namespace Application.Dto
             fixOrderDto.LocationId = fixOrder.Customer?.Location?.Id;
             fixOrderDto.LocationName = fixOrder.Customer?.Location?.Name;
             fixOrderDto.Fixs = fixsDto;
+            fixOrderDto.Calculation = CalculationDtoExtension.ConvertToDto(fixOrder.Calculation);
 
             return fixOrderDto;
         }

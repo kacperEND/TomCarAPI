@@ -10,6 +10,7 @@ namespace Application.Reports.Models
         }
 
         public string ShipmentCode { get; set; }
+        public string CustomerName { get; set; }
         public string OrderDate { get; set; }
         public string WeightUom { get; set; }
         public string Currency { get; set; }
