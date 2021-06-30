@@ -16,9 +16,12 @@ namespace Application.Reports.Models
         public string Currency { get; set; }
         public double SumFixs { get; set; }
         public double NetWeight { get; set; }
-        public decimal IncurredCosts { get; set; }
+        public double IncurredCosts { get; set; }
         public double Cost { get; set; }
         public double SummaryResult { get; set; }
+        public string AdditionalFieldName { get; set; }
+        public double AdditionalFieldValue { get; set; }
+        public double SummaryResultMinusAdd { get; set; }
         public List<FixReport> Fixs { get; set; }
     }
 

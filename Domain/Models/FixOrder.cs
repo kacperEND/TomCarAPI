@@ -35,5 +35,8 @@ namespace Domain.Models
         public int? CalculationId { get; set; }
         public virtual Calculation Calculation { get; set; }
         public virtual ICollection<Fix> Fixs { get; set; }
+        public string Description { get; set; }
+        public string AdditionalFieldName { get; set; }
+        public decimal? AdditionalFieldValue { get; set; }
     }
 }

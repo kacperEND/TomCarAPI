@@ -152,10 +152,7 @@ namespace Application.Services
         private void ValidateFixOrder(FixOrder newFixOrder, FixOrderDto fixOrderDto)
         {
             if (
-                   fixOrderDto == null ||
-                   !fixOrderDto.NetWeight.HasValue ||
-                   !fixOrderDto.IncurredCosts.HasValue ||
-                   !fixOrderDto.OrderDate.HasValue
+                   fixOrderDto == null
            )
             {
                 throw new ValidationException("Brak wymaganych informacji!");
@@ -163,6 +160,9 @@ namespace Application.Services
             newFixOrder.IncurredCosts = fixOrderDto.IncurredCosts;
             newFixOrder.NetWeight = fixOrderDto.NetWeight;
             newFixOrder.OrderDate = fixOrderDto.OrderDate;
+            newFixOrder.Description = fixOrderDto.Description;
+            newFixOrder.AdditionalFieldName = fixOrderDto.AdditionalFieldName;
+            newFixOrder.AdditionalFieldValue = fixOrderDto.AdditionalFieldValue;
 
             var shipment = _shipmentRepository.Get(fixOrderDto.ShipmentId);
             if (shipment == null) throw new RecordNotFoundException("Nie znaleziono Shipmentu!");
@@ -213,11 +213,13 @@ namespace Application.Services
             FixOrderReport fixOrderReport = new FixOrderReport();
             fixOrderReport.ShipmentCode = fixOrder.Shipment.Code;
             fixOrderReport.CustomerName = fixOrder.Customer.CompanyName;
-            fixOrderReport.OrderDate = fixOrder.OrderDate.ToString();
+            fixOrderReport.OrderDate = String.Format("{0:dd/MM/yyyy}", fixOrder.OrderDate.Value);
             fixOrderReport.WeightUom = fixOrder.CommonCodeWeightUom.Code;
             fixOrderReport.Currency = fixOrder.CommonCodeCurrency.Code;
-            fixOrderReport.NetWeight = (double)fixOrder.NetWeight;
-            fixOrderReport.IncurredCosts = (decimal)fixOrder.IncurredCosts;
+            fixOrderReport.NetWeight = ToDouble(fixOrder.NetWeight);
+            fixOrderReport.IncurredCosts = ToDouble(fixOrder.IncurredCosts);
+            fixOrderReport.AdditionalFieldName = fixOrder.AdditionalFieldName;
+            fixOrderReport.AdditionalFieldValue = ToDouble(fixOrder.AdditionalFieldValue.HasValue);
 
             int index = 1;
             foreach (var fix in fixOrder.Fixs)
@@ -228,10 +230,10 @@ namespace Application.Services
                 {
                     ElementReport elementReport = new ElementReport();
                     elementReport.Code = element.CommonCodeName.Code;
-                    elementReport.Weight = (double)element.NetWeight;
-                    elementReport.Price = Convert.ToDouble(element.Price);
+                    elementReport.Weight = ToDouble(element.NetWeight);
+                    elementReport.Price = ToDouble(element.Price);
 
-                    elementReport.Result = elementReport.Weight * elementReport.Price;
+                    elementReport.Result = ToDouble(elementReport.Weight * elementReport.Price);
 
                     fixOrderReport.SumFixs += elementReport.Result;
                     fixReport.Elements.Add(elementReport);
@@ -241,8 +243,9 @@ namespace Application.Services
                 index++;
             }
 
-            fixOrderReport.Cost = Convert.ToDouble(fixOrder.NetWeight) * Convert.ToDouble(fixOrder.IncurredCosts);
-            fixOrderReport.SummaryResult = fixOrderReport.SumFixs - fixOrderReport.Cost;
+            fixOrderReport.Cost = ToDouble(fixOrder.NetWeight) * ToDouble(fixOrder.IncurredCosts);
+            fixOrderReport.SummaryResult = ToDouble(fixOrderReport.SumFixs - fixOrderReport.Cost);
+            fixOrderReport.SummaryResultMinusAdd = ToDouble(fixOrderReport.SummaryResult - fixOrderReport.AdditionalFieldValue);
 
             return fixOrderReport;
         }
@@ -372,7 +375,7 @@ namespace Application.Services
             CalculationReport calculationReport = new CalculationReport();
             calculationReport.ShipmentCode = fixOrder.Shipment.Code;
             calculationReport.CustomerName = fixOrder.Customer.CompanyName;
-            calculationReport.CalculationDate = calculation.CalculationDate.ToString();
+            calculationReport.CalculationDate = String.Format("{0:dd/MM/yyyy}", calculation.CalculationDate.Value); 
             calculationReport.WeightUom = fixOrder.CommonCodeWeightUom.Code;
             calculationReport.Currency = fixOrder.CommonCodeCurrency.Code;
 

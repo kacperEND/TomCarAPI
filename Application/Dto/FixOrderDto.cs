@@ -24,6 +24,9 @@ namespace Application.Dto
         public string WeightUomCode { get; set; }
         public int? LocationId { get; set; }
         public string LocationName { get; set; }
+        public string Description { get; set; }
+        public string AdditionalFieldName { get; set; }
+        public decimal? AdditionalFieldValue { get; set; }
         public IList<FixDto> Fixs { get; set; }
         public CalculationDto Calculation { get; set; }
     }
@@ -40,6 +43,9 @@ namespace Application.Dto
             fixOrder.OrderDate = fixOrderDto.OrderDate;
             fixOrder.CommonCodeCurrencyId = fixOrderDto.CurrencyId;
             fixOrder.CommonCodeWeightUomId = fixOrderDto.WeightUomId;
+            fixOrder.Description = fixOrderDto.Description;
+            fixOrder.AdditionalFieldValue = fixOrderDto.AdditionalFieldValue;
+            fixOrder.AdditionalFieldName = fixOrderDto.AdditionalFieldName;
         }
 
         public static FixOrderDto ConvertToDto(this FixOrder fixOrder, bool includeDetails = false)
@@ -57,6 +63,7 @@ namespace Application.Dto
             var fixOrderDto = new FixOrderDto();
             fixOrderDto.Id = fixOrder.Id;
             fixOrderDto.Number = fixOrder.Number;
+            fixOrderDto.Description = fixOrder.Description;
             fixOrderDto.NetWeight = fixOrder.NetWeight;
             fixOrderDto.IncurredCosts = fixOrder.IncurredCosts;
             fixOrderDto.CurrencyRates = fixOrder.CurrencyRates;
@@ -65,6 +72,8 @@ namespace Application.Dto
             fixOrderDto.CustomerId = fixOrder.CustomerId;
             fixOrderDto.CustomerName = fixOrder.Customer?.CompanyName;
             fixOrderDto.OrderDate = fixOrder.OrderDate;
+            fixOrderDto.AdditionalFieldValue = fixOrder.AdditionalFieldValue;
+            fixOrderDto.AdditionalFieldName = fixOrder.AdditionalFieldName;
             fixOrderDto.CurrencyId = fixOrder.CommonCodeCurrencyId.HasValue ? fixOrder.CommonCodeCurrencyId : null;
             fixOrderDto.CurrencyName = fixOrder.CommonCodeCurrency?.Name;
             fixOrderDto.CurrencyCode = fixOrder.CommonCodeCurrency?.Code;
