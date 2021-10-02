@@ -14,14 +14,14 @@ namespace Application.Reports.Models
         public string OrderDate { get; set; }
         public string WeightUom { get; set; }
         public string Currency { get; set; }
-        public double SumFixs { get; set; }
-        public double NetWeight { get; set; }
-        public double IncurredCosts { get; set; }
-        public double Cost { get; set; }
-        public double SummaryResult { get; set; }
+        public double? SumFixs { get; set; }
+        public double? NetWeight { get; set; }
+        public double? IncurredCosts { get; set; }
+        public double? Cost { get; set; }
+        public double? SummaryResult { get; set; }
         public string AdditionalFieldName { get; set; }
-        public double AdditionalFieldValue { get; set; }
-        public double SummaryResultMinusAdd { get; set; }
+        public double? AdditionalFieldValue { get; set; }
+        public double? SummaryResultMinusAdd { get; set; }
         public List<FixReport> Fixs { get; set; }
     }
 
@@ -40,8 +40,8 @@ namespace Application.Reports.Models
     public class ElementReport
     {
         public string Code { get; set; }
-        public double Weight { get; set; }
-        public double Price { get; set; }
-        public double Result { get; set; }
+        public double? Weight { get; set; }
+        public double? Price { get; set; }
+        public double? Result { get; set; }
     }
 }
