@@ -213,13 +213,13 @@ namespace Application.Services
             FixOrderReport fixOrderReport = new FixOrderReport();
             fixOrderReport.ShipmentCode = fixOrder.Shipment.Code;
             fixOrderReport.CustomerName = fixOrder.Customer.CompanyName;
-            fixOrderReport.OrderDate = String.Format("{0:dd/MM/yyyy}", fixOrder.OrderDate.Value);
+            fixOrderReport.OrderDate = String.Format("{0:dd/MM/yyyy}", fixOrder.OrderDate);
             fixOrderReport.WeightUom = fixOrder.CommonCodeWeightUom.Code;
             fixOrderReport.Currency = fixOrder.CommonCodeCurrency.Code;
-            fixOrderReport.NetWeight = ToDouble(fixOrder.NetWeight);
+            fixOrderReport.NetWeight = fixOrder.NetWeight;
             fixOrderReport.IncurredCosts = ToDouble(fixOrder.IncurredCosts);
             fixOrderReport.AdditionalFieldName = fixOrder.AdditionalFieldName;
-            fixOrderReport.AdditionalFieldValue = ToDouble(fixOrder.AdditionalFieldValue.HasValue);
+            fixOrderReport.AdditionalFieldValue = ToDouble(fixOrder.AdditionalFieldValue);
 
             int index = 1;
             foreach (var fix in fixOrder.Fixs)
@@ -230,8 +230,8 @@ namespace Application.Services
                 {
                     ElementReport elementReport = new ElementReport();
                     elementReport.Code = element.CommonCodeName.Code;
-                    elementReport.Weight = ToDouble(element.NetWeight);
-                    elementReport.Price = ToDouble(element.Price);
+                    elementReport.Weight = element.NetWeight.Value;
+                    elementReport.Price = ToDouble(element.Price.Value);
 
                     elementReport.Result = ToDouble(elementReport.Weight * elementReport.Price);
 
@@ -375,63 +375,63 @@ namespace Application.Services
             CalculationReport calculationReport = new CalculationReport();
             calculationReport.ShipmentCode = fixOrder.Shipment.Code;
             calculationReport.CustomerName = fixOrder.Customer.CompanyName;
-            calculationReport.CalculationDate = String.Format("{0:dd/MM/yyyy}", calculation.CalculationDate.Value); 
+            calculationReport.CalculationDate = String.Format("{0:dd/MM/yyyy}", calculation.CalculationDate);
             calculationReport.WeightUom = fixOrder.CommonCodeWeightUom.Code;
             calculationReport.Currency = fixOrder.CommonCodeCurrency.Code;
 
-            calculationReport.MainFirstElementWeight = ToDouble(calculation.MainFirstElement.NetWeight);
-            calculationReport.MainSecondElementWeight = ToDouble(calculation.MainSecondElement.NetWeight);
-            calculationReport.MainThirdElementWeight = ToDouble(calculation.MainThirdElement.NetWeight);
+            calculationReport.MainFirstElementWeight = calculation.MainFirstElement.NetWeight;
+            calculationReport.MainSecondElementWeight = calculation.MainSecondElement.NetWeight;
+            calculationReport.MainThirdElementWeight = calculation.MainThirdElement.NetWeight;
 
-            calculationReport.SecondaryFirstElementWeight = ToDouble(calculation.SecondaryFirstElement.NetWeight);
-            calculationReport.SecondarySecondElementWeight = ToDouble(calculation.SecondarySecondElement.NetWeight);
-            calculationReport.SecondaryThirdElementWeight = ToDouble(calculation.SecondaryThirdElement.NetWeight);
+            calculationReport.SecondaryFirstElementWeight = calculation.SecondaryFirstElement.NetWeight;
+            calculationReport.SecondarySecondElementWeight = calculation.SecondarySecondElement.NetWeight;
+            calculationReport.SecondaryThirdElementWeight = calculation.SecondaryThirdElement.NetWeight;
 
-            calculationReport.BonusFirstElementWeight = ToDouble(calculation.BonusFirstElement.NetWeight);
-            calculationReport.BonusSecondElementWeight = ToDouble(calculation.BonusSecondElement.NetWeight);
-            calculationReport.BonusThirdElementWeight = ToDouble(calculation.BonusThirdElement.NetWeight);
+            calculationReport.BonusFirstElementWeight = calculation.BonusFirstElement.NetWeight;
+            calculationReport.BonusSecondElementWeight = calculation.BonusSecondElement.NetWeight;
+            calculationReport.BonusThirdElementWeight = calculation.BonusThirdElement.NetWeight;
 
-            calculationReport.PtNetWeight = ToDouble(calculation.Pt.NetWeight);
+            calculationReport.PtNetWeight = calculation.Pt.NetWeight;
             calculationReport.PtPrice = ToDouble(calculation.Pt.Price);
-            calculationReport.PtResult = ToDouble(calculation.Pt.Result);
-            calculationReport.PtPercent = ToDouble(calculation.Pt.Percent);
+            calculationReport.PtResult = calculation.Pt.Result;
+            calculationReport.PtPercent = calculation.Pt.Percent;
             var ptSummary = calculationReport.PtNetWeight * calculationReport.PtPrice * calculationReport.PtResult * calculationReport.PtPercent;
-            calculationReport.PtSummary = Math.Round(ToDouble(ptSummary), 2);
+            calculationReport.PtSummary = Math.Round(ptSummary.Value, 2);
 
-            calculationReport.PdNetWeight = ToDouble(calculation.Pd.NetWeight);
+            calculationReport.PdNetWeight = calculation.Pd.NetWeight;
             calculationReport.PdPrice = ToDouble(calculation.Pd.Price);
-            calculationReport.PdResult = ToDouble(calculation.Pd.Result);
-            calculationReport.PdPercent = ToDouble(calculation.Pd.Percent);
+            calculationReport.PdResult = calculation.Pd.Result;
+            calculationReport.PdPercent = calculation.Pd.Percent;
             var pdSummary = calculationReport.PdNetWeight * calculationReport.PdPrice * calculationReport.PdResult * calculationReport.PdPercent;
-            calculationReport.PdSummary = Math.Round(ToDouble(pdSummary), 2);
+            calculationReport.PdSummary = Math.Round(pdSummary.Value, 2);
 
-            calculationReport.RhNetWeight = ToDouble(calculation.Rh.NetWeight);
+            calculationReport.RhNetWeight = calculation.Rh.NetWeight;
             calculationReport.RhPrice = ToDouble(calculation.Rh.Price);
-            calculationReport.RhResult = ToDouble(calculation.Rh.Result);
-            calculationReport.RhPercent = ToDouble(calculation.Rh.Percent);
+            calculationReport.RhResult = calculation.Rh.Result;
+            calculationReport.RhPercent = calculation.Rh.Percent;
             var rhSummary = calculationReport.RhNetWeight * calculationReport.RhPrice * calculationReport.RhResult * calculationReport.RhPercent;
-            calculationReport.RhSummary = Math.Round(ToDouble(rhSummary), 2);
+            calculationReport.RhSummary = Math.Round(rhSummary.Value, 2);
 
             var calculationModelElementsSum = calculationReport.PtSummary + calculationReport.PdSummary + calculationReport.RhSummary;
-            calculationReport.CalculationModelElementsSum = Math.Round(ToDouble(calculationModelElementsSum), 2);
+            calculationReport.CalculationModelElementsSum = Math.Round(calculationModelElementsSum.Value, 2);
 
             calculationReport.Weight = calculation.Weight;
             calculationReport.Price = calculation.Price;
             var calculationModelCostsSum = calculationReport.Weight * calculationReport.Price;
-            calculationReport.CalculationModelCostsSum = Math.Round(ToDouble(calculationModelCostsSum), 2);
+            calculationReport.CalculationModelCostsSum = Math.Round(calculationModelCostsSum.Value, 2);
 
             calculationReport.ResultPercent = calculation.ResultPercent;
             var calculationModelResultSummary = (calculationReport.CalculationModelElementsSum - calculationReport.CalculationModelCostsSum) * (1 - calculationReport.ResultPercent / 100);
-            calculationReport.CalculationModelResultSummary = Math.Round(ToDouble(calculationModelResultSummary), 2);
+            calculationReport.CalculationModelResultSummary = Math.Round(calculationModelResultSummary.Value, 2);
 
             var calculationModelSummaryPrice = calculationReport.CalculationModelResultSummary / calculationReport.Weight;
-            calculationReport.CalculationModelSummaryPrice = Math.Round(ToDouble(calculationModelSummaryPrice), 2);
+            calculationReport.CalculationModelSummaryPrice = Math.Round(calculationModelSummaryPrice.Value, 2);
 
             calculationReport.InvoiceSum = calculation.InvoiceSum;
             calculationReport.InvoicePrice = calculation.InvoicePrice;
 
             var calculationModelForInvoiceResult = calculationReport.InvoiceSum * calculationReport.InvoicePrice;
-            calculationReport.CalculationModelForInvoiceResult = Math.Round(ToDouble(calculationModelForInvoiceResult), 2);
+            calculationReport.CalculationModelForInvoiceResult = Math.Round(calculationModelForInvoiceResult.Value, 2);
 
             return calculationReport;
         }
