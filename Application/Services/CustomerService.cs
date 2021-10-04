@@ -49,7 +49,6 @@ namespace Application.Services
             newCustomer.CopyFromDto(customerDto);
 
             var isCustomerExists = _customerRepository.Table.Any(item => item.Name == newCustomer.Name
-            //&& item.SecondName == newCustomer.SecondName
             && item.CompanyName == newCustomer.CompanyName);
             if (isCustomerExists)
                 throw new ValidationException("Klient już istnieje!");
