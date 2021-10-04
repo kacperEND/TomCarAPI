@@ -32,29 +32,6 @@ namespace Application.Services
             return query;
         }
 
-        public string GetTranslationByCode(string parentCode, string codeToTranslate, ILookup<int, CommonCode> translationLookup)
-        {
-            if (string.IsNullOrEmpty(parentCode) || string.IsNullOrEmpty(codeToTranslate))
-                return codeToTranslate;
-
-            var commonCode = Get(parentCode, codeToTranslate);
-            if (commonCode == null)
-                return codeToTranslate;
-
-            return GetTranslationFromLookup(commonCode.Id, translationLookup);
-        }
-
-        public string GetTranslationFromLookup(int id, ILookup<int, CommonCode> translationLookup)
-        {
-            if (translationLookup == null)
-                return null;
-
-            if (translationLookup.Contains(id) && !string.IsNullOrWhiteSpace(translationLookup[id].Select(item => item.Name).FirstOrDefault()))
-                return translationLookup[id].Select(item => item.Name).FirstOrDefault();
-            else
-                return null;
-        }
-
         public CommonCode Get(string parentCode, string code = null)
         {
             if (string.IsNullOrWhiteSpace(parentCode))
@@ -106,31 +83,6 @@ namespace Application.Services
             this._commonCode.Create(newCommonCode);
             this._commonCode.Flush();
             return newCommonCode;
-        }
-
-        public void LoadCommonCodesIntoDb()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IQueryable<CommonCode> Query(string parentCode, List<string> codes)
-        {
-            throw new NotImplementedException();
-        }
-
-        public CommonCode CreateCommonCodeFromName(string name, int? parentId = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ILookup<int, CommonCode> GetTranslationLookup(string code)
-        {
-            throw new NotImplementedException();
-        }
-
-        public CommonCode createIfNotExist(string name, string code, string description, string parentCode = null)
-        {
-            throw new NotImplementedException();
         }
     }
 }

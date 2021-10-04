@@ -151,12 +151,11 @@ namespace Application.Services
 
         private void ValidateFixOrder(FixOrder newFixOrder, FixOrderDto fixOrderDto)
         {
-            if (
-                   fixOrderDto == null
-           )
+            if (fixOrderDto == null)
             {
                 throw new ValidationException("Brak wymaganych informacji!");
             }
+
             newFixOrder.IncurredCosts = fixOrderDto.IncurredCosts;
             newFixOrder.NetWeight = fixOrderDto.NetWeight;
             newFixOrder.OrderDate = fixOrderDto.OrderDate;

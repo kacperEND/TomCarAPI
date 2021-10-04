@@ -27,6 +27,7 @@ namespace Application.Services
             var fix = _fixRepository.Get(elementDto.FixId);
             if (fix == null)
                 throw new RecordNotFoundException("Nie znaleziono Fixu!");
+
             newElement.FixId = elementDto.FixId;
 
             var commoncodeElementName = this._commonCodeService.Query(typeof(Constants.CommonCode.WeightUom).Name, elementDto.NameCodeCode).FirstOrDefault();
