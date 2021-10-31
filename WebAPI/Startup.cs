@@ -1,3 +1,5 @@
+using Application.Services;
+using Infrastructure.Data.MongoDB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -5,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using WebAPI.Installers;
 
@@ -21,6 +24,14 @@ namespace WebAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<MongoDBDatabaseSettings>(
+            Configuration.GetSection(nameof(MongoDBDatabaseSettings)));
+
+            services.AddSingleton<IMongoDBDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<MongoDBDatabaseSettings>>().Value);
+
+            services.AddSingleton<FixLiteService>();
+
             services.InstallServicesInAssembly(Configuration);
             services.AddAuthentication(options =>
             {

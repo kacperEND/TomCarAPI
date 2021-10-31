@@ -3,6 +3,7 @@
     public static class Constants
     {
         public const string Fix = "FIX";
+        public const int DEFAULT_PAGE_SIZE = 10;
 
         public static class LabelTemplates
         {
