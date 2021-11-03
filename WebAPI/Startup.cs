@@ -24,13 +24,7 @@ namespace WebAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<MongoDBDatabaseSettings>(
-            Configuration.GetSection(nameof(MongoDBDatabaseSettings)));
-
-            services.AddSingleton<IMongoDBDatabaseSettings>(sp =>
-                sp.GetRequiredService<IOptions<MongoDBDatabaseSettings>>().Value);
-
-            services.AddSingleton<FixLiteService>();
+            ConfigureMongoDB(services);
 
             services.InstallServicesInAssembly(Configuration);
             services.AddAuthentication(options =>
@@ -55,6 +49,18 @@ namespace WebAPI
                 options.EnableEndpointRouting = false;
             })
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);
+        }
+
+        private void ConfigureMongoDB(IServiceCollection services)
+        {
+            services.Configure<MongoDBDatabaseSettings>(
+            Configuration.GetSection(nameof(MongoDBDatabaseSettings)));
+
+            services.AddSingleton<IMongoDBDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<MongoDBDatabaseSettings>>().Value);
+
+            services.AddSingleton<ShipmentLiteService>();
+            services.AddSingleton<MongoLogService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

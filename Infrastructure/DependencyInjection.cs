@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Data.MongoDB;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure
@@ -9,6 +10,7 @@ namespace Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             services.AddTransient(typeof(IRepository<>), typeof(EFRepository<>));
+            services.AddTransient(typeof(IMongoRepository<>), typeof(MongoRepository<>));
             return services;
         }
     }
