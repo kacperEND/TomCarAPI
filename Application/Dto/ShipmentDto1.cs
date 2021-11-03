@@ -1,24 +1,23 @@
 ﻿using Domain.Models.MongoDB;
-using System;
 
 namespace WebAPI.DtoModels
 {
-    public class FixLiteDto
+    public class ShipmenLiteDto
     {
         public string Id { get; set; }
-        public int? Shipment { get; set; }
+        public int? ShipmentNo { get; set; }
         public string Date { get; set; }
         public string CompanyName { get; set; }
     }
 
     public static class FixLiteExtension
     {
-        public static FixLiteDto ConvertToDto(this FixLite model)
+        public static ShipmenLiteDto ConvertToDto(this Shipment model)
         {
-            return new FixLiteDto
+            return new ShipmenLiteDto
             {
                 Id = model.Id,
-                Shipment = model.Shipment,
+                ShipmentNo = model.ShipmentNo,
                 Date = model.Date,
                 CompanyName = model.CompanyName,
             };

@@ -1,18 +1,7 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System;
-
-namespace Domain.Models.MongoDB
+﻿namespace Domain.Models.MongoDB
 {
     public class FixLite
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
-        public int? Shipment { get; set; }
-        public string Date { get; set; }
-        public string CompanyName { get; set; }
         public decimal? _1Element_PT { get; set; }
         public decimal? _1Element_PD { get; set; }
         public decimal? _1Element_RH { get; set; }
