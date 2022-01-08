@@ -62,5 +62,17 @@ namespace WebAPI.Controllers
 
             return Ok();
         }
+
+        [HttpDelete("Delete/{shipmentId}")]
+        public IActionResult Update(string shipmentId)
+        {
+            if (string.IsNullOrEmpty(shipmentId))
+            {
+                return BadRequest("ShipmentId can not be null");
+            };
+
+            _shipmentLiteService.Remove(shipmentId);
+            return Ok();
+        }
     }
 }

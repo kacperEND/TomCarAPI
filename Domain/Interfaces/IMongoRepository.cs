@@ -20,6 +20,8 @@ namespace Domain.Interfaces
 
         void Remove(T entity);
 
+        void Remove(string id);
+
         void Update(T entity);
     }
 }

@@ -27,9 +27,8 @@ namespace Application.Services
 
             var fixs = _shipmentLiteRepository.Collection.Find(filter).Limit(Constants.DEFAULT_PAGE_SIZE).ToList();
 
-            var result = fixs.OrderByDescending(item => DateTime.Parse(item.Date)).Select(item => item.ConvertToDto());
-
-            return result;
+            var shipmenLiteDtos = fixs.OrderByDescending(item => DateTime.Parse(item.Date)).Select(item => item.ConvertToDto());
+            return shipmenLiteDtos;
         }
 
         public Shipment Get(string id)
@@ -49,19 +48,17 @@ namespace Application.Services
 
         private Shipment GenerateTemplateShipment()
         {
-            var fixLite = new FixLite
-            {
-                _PT_Percent = 98,
-                _PD_Percent = 98,
-                _RH_Percent = 88
-            };
-
             var shipment = new Shipment
             {
                 Date = DateTime.Now.ToString("yyyy'-'MM'-'dd"),
-                CompanyName = "Nazwa",
-                FixLite = fixLite,
-                Revision = new Revision()
+                CompanyName = "NowaNazwa",
+                Revision = new Revision(),
+                FixLite = new FixLite
+                {
+                    _PT_Percent = 98,
+                    _PD_Percent = 98,
+                    _RH_Percent = 88
+                },
             };
 
             return shipment;
@@ -69,5 +66,8 @@ namespace Application.Services
 
         public void Update(Shipment shipment) =>
             _shipmentLiteRepository.Update(shipment);
+
+        public void Remove(string shipmentId) =>
+             _shipmentLiteRepository.Remove(shipmentId);
     }
 }
