@@ -1,12 +1,9 @@
 ﻿using Application.Dto;
-using Application.Interfaces;
 using Application.Services;
 using Domain.Models.MongoDB;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Linq;
-using WebAPI.DtoModels;
 using ShipmenLiteDto = WebAPI.DtoModels.ShipmenLiteDto;
 
 namespace WebAPI.Controllers
@@ -26,7 +23,7 @@ namespace WebAPI.Controllers
         [HttpPost("Create")]
         public IActionResult Create(Shipment ship)
         {
-            var result = _shipmentLiteService.Create(ship);
+            var result = _shipmentLiteService.CreateBasicShipment();
 
             return Ok(result);
         }
@@ -64,7 +61,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("Delete/{shipmentId}")]
-        public IActionResult Update(string shipmentId)
+        public IActionResult Delete(string shipmentId)
         {
             if (string.IsNullOrEmpty(shipmentId))
             {

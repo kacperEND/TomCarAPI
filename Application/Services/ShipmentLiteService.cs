@@ -1,12 +1,12 @@
 ﻿using Domain.Interfaces;
 using Domain.Models.MongoDB;
-using Infrastructure.Data.MongoDB;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
+using Domain.Models.MongoDB.Core;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using WebAPI.DtoModels;
 
 namespace Application.Services
@@ -14,16 +14,28 @@ namespace Application.Services
     public class ShipmentLiteService
     {
         private readonly IMongoRepository<Shipment> _shipmentLiteRepository;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public ShipmentLiteService(IMongoRepository<Shipment> shipmentLiteRepository)
+        public ShipmentLiteService(IMongoRepository<Shipment> shipmentLiteRepository, IHttpContextAccessor contextAccessor)
         {
             _shipmentLiteRepository = shipmentLiteRepository;
+            _contextAccessor = contextAccessor;
         }
 
         public IEnumerable<ShipmenLiteDto> Find(string searchterm = "")
         {
             searchterm = searchterm ?? "";
-            var filter = Builders<Shipment>.Filter.Where(x => x.CompanyName.ToUpper().Contains(searchterm.ToUpper()));
+            var isShipmentNumber = int.TryParse(searchterm, out int shipmentNoTerm);
+
+            FilterDefinition<Shipment> filter;
+            if (isShipmentNumber)
+            {
+                filter = Builders<Shipment>.Filter.Where(x => x.ShipmentNo != null && x.ShipmentNo == shipmentNoTerm);
+            }
+            else
+            {
+                filter = Builders<Shipment>.Filter.Where(x => x.CompanyName.ToUpper().Contains(searchterm.ToUpper()));
+            }
 
             var fixs = _shipmentLiteRepository.Collection.Find(filter).Limit(Constants.DEFAULT_PAGE_SIZE).ToList();
 
@@ -37,17 +49,18 @@ namespace Application.Services
             return result;
         }
 
-        public Shipment Create(Shipment shipmentLite)
+        public Shipment CreateBasicShipment()
         {
-            shipmentLite = null; //TODO
-            Shipment newFix = shipmentLite ?? GenerateTemplateShipment();
-            _shipmentLiteRepository.Create(newFix);
+            Shipment shipment = GenerateShipmentFromTemplate();
+            _shipmentLiteRepository.Create(shipment);
 
-            return newFix;
+            return shipment;
         }
 
-        private Shipment GenerateTemplateShipment()
+        private Shipment GenerateShipmentFromTemplate()
         {
+            var userEmail = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
+
             var shipment = new Shipment
             {
                 Date = DateTime.Now.ToString("yyyy'-'MM'-'dd"),
@@ -59,13 +72,26 @@ namespace Application.Services
                     _PD_Percent = 98,
                     _RH_Percent = 88
                 },
+                Info = new BasicInfo
+                {
+                    CreatedBy = userEmail,
+                    DateCreated = DateTime.UtcNow,
+                    IsDeleted = false,
+                }
             };
 
             return shipment;
         }
 
-        public void Update(Shipment shipment) =>
+        public void Update(Shipment shipment) {
+            var userEmail = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
+
+            if (shipment.Info == null) shipment.Info = new BasicInfo();
+
+            shipment.Info.DateModified = DateTime.UtcNow;
+            shipment.Info.ModifiedBy = userEmail;
             _shipmentLiteRepository.Update(shipment);
+        }
 
         public void Remove(string shipmentId) =>
              _shipmentLiteRepository.Remove(shipmentId);

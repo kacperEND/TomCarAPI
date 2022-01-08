@@ -1,18 +1,16 @@
 ﻿using Domain.Interfaces;
+using Domain.Models.MongoDB.Core;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Models.MongoDB
 {
-    public class CoreAuditableMongoModel : ICoreAuditableMongoModel
+    public abstract class CoreAuditableMongoModel : ICoreAuditableMongoModel
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
+
+        public BasicInfo Info { get; set; }
     }
 }

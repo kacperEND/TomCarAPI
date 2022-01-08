@@ -61,6 +61,7 @@ namespace WebAPI
 
             services.AddSingleton<ShipmentLiteService>();
             services.AddSingleton<MongoLogService>();
+            services.AddHttpContextAccessor();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
