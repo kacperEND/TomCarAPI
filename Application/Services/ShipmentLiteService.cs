@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using Application.Exceptions;
+using Domain.Interfaces;
 using Domain.Models.MongoDB;
 using Domain.Models.MongoDB.Core;
 using Microsoft.AspNetCore.Http;
@@ -25,36 +26,34 @@ namespace Application.Services
         public IEnumerable<ShipmenLiteDto> Find(string searchterm = "")
         {
             searchterm = searchterm ?? "";
-            var isShipmentNumber = int.TryParse(searchterm, out int shipmentNoTerm);
+            bool isShipmentNumber = int.TryParse(searchterm, out int shipmentNoTerm);
 
-            FilterDefinition<Shipment> filter;
-            if (isShipmentNumber)
-            {
-                filter = Builders<Shipment>.Filter.Where(x => x.ShipmentNo != null && x.ShipmentNo == shipmentNoTerm);
-            }
-            else
-            {
-                filter = Builders<Shipment>.Filter.Where(x => x.CompanyName.ToUpper().Contains(searchterm.ToUpper()));
-            }
+            var filter = isShipmentNumber
+                ? Builders<Shipment>.Filter.Where(x => x.ShipmentNo != null && x.ShipmentNo == shipmentNoTerm)
+                : Builders<Shipment>.Filter.Where(x => x.CompanyName.ToUpper().Contains(searchterm.ToUpper()));
 
             var fixs = _shipmentLiteRepository.Collection.Find(filter).Limit(Constants.DEFAULT_PAGE_SIZE).ToList();
 
-            var shipmenLiteDtos = fixs.OrderByDescending(item => DateTime.Parse(item.Date)).Select(item => item.ConvertToDto());
-            return shipmenLiteDtos;
+            return fixs.OrderByDescending(item => DateTime.Parse(item.Date)).Select(item => item.ConvertToDto());
         }
 
-        public Shipment Get(string id)
+        public Shipment Get(string shipmentId)
         {
-            var result = _shipmentLiteRepository.Get(id);
-            return result;
-        }
-
-        public Shipment CreateBasicShipment()
-        {
-            Shipment shipment = GenerateShipmentFromTemplate();
-            _shipmentLiteRepository.Create(shipment);
+            var shipment = _shipmentLiteRepository.Get(shipmentId);
+            if (shipment == null)
+            {
+                throw new ValidationException("Brak dokumentu w bazie!");
+            }
 
             return shipment;
+        }
+
+        public Shipment CreateNewShipment(Shipment shipment = null)
+        {
+            var newShipment = shipment ?? GenerateShipmentFromTemplate();
+            _shipmentLiteRepository.Create(newShipment);
+
+            return newShipment;
         }
 
         private Shipment GenerateShipmentFromTemplate()
@@ -64,7 +63,7 @@ namespace Application.Services
             var shipment = new Shipment
             {
                 Date = DateTime.Now.ToString("yyyy'-'MM'-'dd"),
-                CompanyName = "NowaNazwa",
+                CompanyName = "{Nazwa}",
                 Revision = new Revision(),
                 FixLite = new FixLite
                 {
@@ -83,7 +82,8 @@ namespace Application.Services
             return shipment;
         }
 
-        public void Update(Shipment shipment) {
+        public void Update(Shipment shipment)
+        {
             var userEmail = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
 
             if (shipment.Info == null) shipment.Info = new BasicInfo();

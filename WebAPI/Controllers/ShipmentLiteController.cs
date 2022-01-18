@@ -21,9 +21,9 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("Create")]
-        public IActionResult Create(Shipment ship)
+        public IActionResult Create(Shipment ship = null)
         {
-            var result = _shipmentLiteService.CreateBasicShipment();
+            var result = _shipmentLiteService.CreateNewShipment(ship);
 
             return Ok(result);
         }
@@ -36,6 +36,11 @@ namespace WebAPI.Controllers
             return Ok(shipmentLite);
         }
 
+        /// <summary>
+        /// Load Shipment from database
+        /// </summary>
+        /// <param name="searchterm">ShipmentNumber or ShipmentName</param>
+        /// <returns></returns>
         [HttpGet("Find")]
         public CollectionResult<ShipmenLiteDto> Find(string searchterm = "")
         {
