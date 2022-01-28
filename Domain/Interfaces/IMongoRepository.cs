@@ -1,15 +1,14 @@
-﻿using Domain.Interfaces;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace Domain.Interfaces
 {
     public interface IMongoRepository<T> where T : ICoreAuditableMongoModel
     {
         IMongoCollection<T> Collection { get; }
+        IMongoQueryable<T> QueryCollection { get; }
 
         void Create(T entity);
-
-        void CreateAsync(T entity);
 
         /// <summary>
         /// Gets the entity for the specified identifier.
@@ -18,10 +17,10 @@ namespace Domain.Interfaces
         /// <returns></returns>
         T Get(string id);
 
-        void Remove(T entity);
+        void DeleteAsync(T entity);
 
-        void Remove(string id);
+        void DeleteAsync(string id);
 
-        void Update(T entity);
+        void UpdateAsync(T entity);
     }
 }

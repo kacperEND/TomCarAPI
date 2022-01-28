@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System.Linq;
 
 namespace Infrastructure.Data.MongoDB
@@ -24,6 +25,14 @@ namespace Infrastructure.Data.MongoDB
             }
         }
 
+        public IMongoQueryable<T> QueryCollection
+        {
+            get
+            {
+                return _collection.AsQueryable();
+            }
+        }
+
         public T Get(string id)
         {
             return _collection.Find<T>(item => item.Id == id).FirstOrDefault();
@@ -31,29 +40,24 @@ namespace Infrastructure.Data.MongoDB
 
         public void Create(T entity)
         {
-            _collection.InsertOne(entity);
-        }
-
-        public void CreateAsync(T entity)
-        {
             _collection.InsertOneAsync(entity);
         }
 
-        public void Update(T entity)
+        public void UpdateAsync(T entity)
         {
             if (string.IsNullOrEmpty(entity.Id)) { return; }
 
-            _collection.ReplaceOne(item => item.Id == entity.Id, entity);
+            _collection.ReplaceOneAsync(item => item.Id == entity.Id, entity);
         }
 
-        public void Remove(T entity)
+        public void DeleteAsync(T entity)
         {
-            _collection.DeleteOne(item => item.Id == entity.Id);
+            _collection.DeleteOneAsync(item => item.Id == entity.Id);
         }
 
-        public void Remove(string id)
+        public void DeleteAsync(string id)
         {
-            _collection.DeleteOne(item => item.Id == id);
+            _collection.DeleteOneAsync(item => item.Id == id);
         }
     }
 }

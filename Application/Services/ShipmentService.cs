@@ -27,6 +27,7 @@ namespace Application.Services
 
             var newShipment = new Shipment();
             newShipment.CopyFromDto(shipmentDto);
+
             _shipmentRepository.Create(newShipment);
             _shipmentRepository.Flush();
 

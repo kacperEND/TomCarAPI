@@ -2,40 +2,33 @@
 using Domain.Interfaces;
 using Domain.Models.MongoDB;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
     public class MongoLogService : ILogService
     {
-        private readonly IMongoRepository<Log> _repository;
+        private readonly IMongoRepository<Log> _logRepository;
 
-        public MongoLogService(IMongoRepository<Log> logRepo)
+        public MongoLogService(IMongoRepository<Log> logRepository)
         {
-            _repository = logRepo;
+            _logRepository = logRepository;
         }
 
         public void Error(string errorMessage, string user, string description, string code = null)
         {
             try
             {
-                var log = new Log
+                _logRepository.Create(new Log
                 {
                     Message = errorMessage,
                     ErrorCode = code,
                     User = user,
                     Description = description.Substring(0, 150),
                     DateCreated = DateTime.Now
-                };
-
-                _repository.Create(log);
+                });
             }
             catch
             {
-                //DO NOTHING
             }
         }
     }

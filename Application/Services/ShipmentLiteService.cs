@@ -40,13 +40,27 @@ namespace Application.Services
         public Shipment Get(string shipmentId)
         {
             var shipment = _shipmentLiteRepository.Get(shipmentId);
-            if (shipment == null)
+            if (shipment is null)
             {
                 throw new ValidationException("Brak dokumentu w bazie!");
             }
 
             return shipment;
         }
+
+        public void Update(Shipment shipment)
+        {
+            var userEmail = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
+
+            shipment.Info = shipment.Info ?? new BasicInfo();
+
+            shipment.Info.DateModified = DateTime.UtcNow;
+            shipment.Info.ModifiedBy = userEmail;
+            _shipmentLiteRepository.UpdateAsync(shipment);
+        }
+
+        public void Remove(string shipmentId) =>
+             _shipmentLiteRepository.DeleteAsync(shipmentId);
 
         public Shipment CreateNewShipment(Shipment shipment = null)
         {
@@ -82,18 +96,5 @@ namespace Application.Services
             return shipment;
         }
 
-        public void Update(Shipment shipment)
-        {
-            var userEmail = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
-
-            if (shipment.Info == null) shipment.Info = new BasicInfo();
-
-            shipment.Info.DateModified = DateTime.UtcNow;
-            shipment.Info.ModifiedBy = userEmail;
-            _shipmentLiteRepository.Update(shipment);
-        }
-
-        public void Remove(string shipmentId) =>
-             _shipmentLiteRepository.Remove(shipmentId);
     }
 }
