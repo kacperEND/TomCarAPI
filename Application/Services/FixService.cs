@@ -17,11 +17,9 @@ namespace Application.Services
         private readonly IRepository<Fix> _fixRepository;
         private readonly IRepository<FixOrder> _fixOrderRepository;
         private readonly IRepository<Customer> _customerRepository;
-        private readonly IRepository<Location> _locationRepository;
         private readonly IRepository<Shipment> _shipmentRepository;
         private readonly IRepository<Calculation> _calculationRepository;
         private readonly IRepository<Element> _elementRepository;
-        private readonly IRepository<CommonCode> _commonCodeRepository;
         private readonly IAppConfigService _appConfigService;
         private readonly ICommonCodeService _commonCodeService;
 
@@ -29,9 +27,7 @@ namespace Application.Services
             IRepository<FixOrder> fixOrderRepository,
             IRepository<Customer> customerRepository,
             ICommonCodeService commonCodeService,
-            IRepository<Location> locationRepository,
             IRepository<Shipment> shipmentRepository,
-            IRepository<CommonCode> commonCodeRepository,
             IRepository<Element> elementRepository,
             IAppConfigService appConfigService,
             IRepository<Calculation> calculationRepository)
@@ -40,10 +36,8 @@ namespace Application.Services
             _fixOrderRepository = fixOrderRepository;
             _customerRepository = customerRepository;
             _commonCodeService = commonCodeService;
-            _locationRepository = locationRepository;
             _shipmentRepository = shipmentRepository;
             _elementRepository = elementRepository;
-            _commonCodeRepository = commonCodeRepository;
             _appConfigService = appConfigService;
             _calculationRepository = calculationRepository;
         }

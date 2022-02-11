@@ -9,13 +9,11 @@ namespace Application.Services
 {
     public class ElementService : IElementService
     {
-        private readonly IRepository<Element> _elementRepository;
         private readonly IRepository<Fix> _fixRepository;
         private readonly ICommonCodeService _commonCodeService;
 
-        public ElementService(IRepository<Element> elementRepository, IRepository<Fix> fixRepository, ICommonCodeService commonCodeService)
+        public ElementService(IRepository<Fix> fixRepository, ICommonCodeService commonCodeService)
         {
-            _elementRepository = elementRepository;
             _fixRepository = fixRepository;
             _commonCodeService = commonCodeService;
         }

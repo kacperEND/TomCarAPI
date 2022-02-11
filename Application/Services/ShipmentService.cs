@@ -23,7 +23,9 @@ namespace Application.Services
         {
             var isExists = _shipmentRepository.Table.Any(item => item.Code.ToUpper() == shipmentDto.Code.ToUpper() && !item.IsDeleted);
             if (isExists)
+            {
                 throw new ValidationException("Już istnieje Shipment o tym numerze!");
+            }
 
             var newShipment = new Shipment();
             newShipment.CopyFromDto(shipmentDto);
@@ -65,24 +67,26 @@ namespace Application.Services
                 isGoodEndDate = DateTime.TryParse(endDate, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out endDateUtc);
                 if (!isGoodEndDate)
                 {
-                    throw new ValidationException("Nieprawidłwy format daty");
+                    throw new ValidationException("Nieprawidłwy format koncowej daty");
                 }
                 query = query.Where(item => item.DateEnd >= endDateUtc);
             }
 
             var pagedShipment = query.OrderBy(item => item.DateEnd).Skip(itemsToSkip.Value).Take(pageSize.Value);
 
-            var listOfCustomers = pagedShipment.ToList().Select(item => item.ConvertToDto());
-            return listOfCustomers;
+            var shipmentDtos = pagedShipment.ToList().Select(item => item.ConvertToDto());
+            return shipmentDtos;
         }
 
         public ShipmentDto Get(int shipmentId)
         {
-            var customer = _shipmentRepository.Get(shipmentId);
-            if (customer == null)
-                throw new RecordNotFoundException("Nie znaleziono!");
+            var shipment = _shipmentRepository.Get(shipmentId);
+            if (shipment == null)
+            {
+                throw new RecordNotFoundException("Nie znaleziono rekordu!");
+            }
 
-            return customer.ConvertToDto();
+            return shipment.ConvertToDto();
         }
 
         public ShipmentDto Update(ShipmentDto shipmentDto)
