@@ -21,9 +21,27 @@ namespace Application.Services
                 _logRepository.Create(new Log
                 {
                     Message = errorMessage,
-                    ErrorCode = code,
+                    Type = LogType.Error,
                     User = user,
                     Description = description.Substring(0, 150),
+                    DateCreated = DateTime.Now
+                });
+            }
+            catch
+            {
+            }
+        }
+
+        public void Info(string message, string user, string description)
+        {
+            try
+            {
+                _logRepository.Create(new Log
+                {
+                    Message = message,
+                    Type = LogType.Info,
+                    User = user,
+                    Description = description,
                     DateCreated = DateTime.Now
                 });
             }

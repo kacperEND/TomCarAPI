@@ -1,4 +1,5 @@
 ﻿using Application.Exceptions;
+using Application.Interfaces;
 using Domain.Interfaces;
 using Domain.Models.MongoDB;
 using Domain.Models.MongoDB.Core;
@@ -16,11 +17,13 @@ namespace Application.Services
     {
         private readonly IMongoRepository<Shipment> _shipmentLiteRepository;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly ILogService _logService;
 
-        public ShipmentLiteService(IMongoRepository<Shipment> shipmentLiteRepository, IHttpContextAccessor contextAccessor)
+        public ShipmentLiteService(IMongoRepository<Shipment> shipmentLiteRepository, IHttpContextAccessor contextAccessor, MongoLogService logService)
         {
             _shipmentLiteRepository = shipmentLiteRepository;
             _contextAccessor = contextAccessor;
+            _logService = logService;
         }
 
         public IEnumerable<ShipmenLiteDto> Find(string searchterm = "")
@@ -66,6 +69,9 @@ namespace Application.Services
         {
             var newShipment = shipment ?? GenerateShipmentFromTemplate();
             _shipmentLiteRepository.Create(newShipment);
+
+            var userEmail = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
+            _logService.Info("Create ShipmentLite", userEmail, $"ShipmentNo: {newShipment.ShipmentNo}");
 
             return newShipment;
         }
