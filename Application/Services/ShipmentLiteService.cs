@@ -67,7 +67,7 @@ namespace Application.Services
 
         public Shipment CreateNewShipment(Shipment shipment = null)
         {
-            var newShipment = shipment ?? GenerateShipmentFromTemplate();
+            var newShipment = shipment.ShipmentNo.HasValue ? shipment :GenerateShipmentFromTemplate();
             _shipmentLiteRepository.Create(newShipment);
 
             var userEmail = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
